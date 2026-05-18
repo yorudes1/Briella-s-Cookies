@@ -82,7 +82,6 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        # Safely checks for fields to prevent 400 Bad Request errors
         if 'email' not in request.form or 'password' not in request.form:
             flash('Invalid form submission.', 'error')
             return redirect(url_for('login'))
@@ -92,6 +91,7 @@ def login():
         
         conn = get_db()
         with conn.cursor() as cursor:
+            # FIXED: Changed from '?' placeholder to MySQL '%s' placeholder
             cursor.execute('SELECT * FROM customers WHERE email = %s', (email,))
             user = cursor.fetchone()
         conn.close()
@@ -102,8 +102,7 @@ def login():
             return redirect(url_for('shop'))
         flash('Invalid email or password.', 'error')
     
-    # FIX: Render your actual customer login interface, not the admin_login template
-    return render_template('login.html')
+    return render_template('login.html')  # Properly displays Customer Login
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -118,6 +117,7 @@ def register():
         conn = get_db()
         try:
             with conn.cursor() as cursor:
+                # FIXED: Changed '?' parameters to '%s' to support Aiven MySQL account insertion
                 cursor.execute(
                     'INSERT INTO customers (name, email, password, contact, address) VALUES (%s, %s, %s, %s, %s)',
                     (name, email, hashed, contact, address)
@@ -137,6 +137,7 @@ def shop():
         
     conn = get_db()
     with conn.cursor() as cursor:
+        # FIXED: Updated '?' to '%s'
         cursor.execute(
             'SELECT * FROM orders WHERE customer_id = %s ORDER BY created_at DESC LIMIT 5',
             (session['user_id'],)
@@ -166,6 +167,7 @@ def order():
     
     conn = get_db()
     with conn.cursor() as cursor:
+        # FIXED: Updated '?' to '%s'
         cursor.execute(
             'INSERT INTO orders (customer_id, cookie_type, quantity, total_price) VALUES (%s, %s, %s, %s)',
             (session['user_id'], cookie_type, quantity, price)
@@ -219,6 +221,7 @@ def admin_dashboard():
 
         # Weekly sales (last 7 days)
         week_ago = (datetime.now() - timedelta(days=7))
+        # FIXED: Updated '?' to '%s'
         cursor.execute(
             "SELECT cookie_type, SUM(quantity) as total_qty, SUM(total_price) as total_rev FROM orders WHERE created_at >= %s GROUP BY cookie_type",
             (week_ago,)
@@ -242,6 +245,7 @@ def admin_dashboard():
             day_start = (datetime.now() - timedelta(days=i)).replace(hour=0, minute=0, second=0, microsecond=0)
             day_end = day_start + timedelta(days=1)
             
+            # FIXED: Updated '?' to '%s'
             cursor.execute(
                 "SELECT SUM(quantity) as qty FROM orders WHERE created_at >= %s AND created_at < %s",
                 (day_start, day_end)
