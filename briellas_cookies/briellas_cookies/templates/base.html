@@ -114,6 +114,7 @@
 {% block extra_styles %}{% endblock %}
 </head>
 <body>
+
 <div class="flash-container">
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% for cat, msg in messages %}
@@ -121,8 +122,11 @@
     {% endfor %}
   {% endwith %}
 </div>
+
 {% block navbar %}{% endblock %}
+
 {% block content %}{% endblock %}
+
 <footer class="footer">
   <div class="footer-brand">Briella's Cookies</div>
   <div class="footer-divider"></div>
@@ -132,6 +136,7 @@
   </div>
   <div class="footer-copy">© 2024 Briella's Cookies · Homemade with Love</div>
 </footer>
+
 <script>
   setTimeout(() => {
     document.querySelectorAll('.flash').forEach(f => f.style.opacity = '0');
