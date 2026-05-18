@@ -17,20 +17,18 @@ DB_PASS = os.environ.get('DB_PASS', 'AVNS_tZiyrWIXCkvcWL6bUj_')
 DB_NAME = os.environ.get('DB_NAME', 'defaultdb')
 
 def get_db():
-    """Establishes a secure connection to your Aiven MySQL cluster."""
     return pymysql.connect(
         host=DB_HOST,
         port=DB_PORT,
         user=DB_USER,
         password=DB_PASS,
         database=DB_NAME,
-        ssl={'ssl': {}},  # Enforces REQUIRED SSL encryption mode for Aiven connections
-        cursorclass=DictCursor,  # Makes rows act like dictionaries to match HTML syntax
+        ssl={'ssl': {}},
+        cursorclass=DictCursor,
         autocommit=True
     )
 
 def init_db():
-    """Generates production tables and applies live structural schema updates."""
     conn = get_db()
     with conn.cursor() as cursor:
         cursor.execute('''CREATE TABLE IF NOT EXISTS customers (
@@ -52,13 +50,11 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )''')
         
-        # FEATURE UPDATE: Checks for and appends delivery_date feature seamlessly if missing
         cursor.execute("SHOW COLUMNS FROM orders LIKE 'delivery_date'")
         if not cursor.fetchone():
             cursor.execute("ALTER TABLE orders ADD COLUMN delivery_date VARCHAR(100) DEFAULT 'Not Scheduled Yet'")
     conn.close()
 
-# Initialize tables immediately upon application startup
 init_db()
 
 COOKIES = {
@@ -144,11 +140,9 @@ def shop():
             (session['user_id'],)
         )
         orders = cursor.fetchall()
-        
         for order in orders:
             if 'created_at' in order and isinstance(order['created_at'], datetime):
                 order['created_at'] = order['created_at'].strftime('%Y-%m-%d %H:%M')
-                
     conn.close()
     return render_template('shop.html', cookies=COOKIES, orders=orders)
 
@@ -174,7 +168,7 @@ def order():
         )
     conn.close()
     
-    flash(f'Order placed! {quantity}x {COOKIES[cookie_type]["name"]} — ₱{price:.0f}', 'success')
+    flash(f'Order placed! {quantity}x {COOKIES[cookie_type]["name"]}', 'success')
     return redirect(url_for('shop'))
 
 @app.route('/logout')
@@ -203,7 +197,7 @@ def admin_dashboard():
 
     conn = get_db()
     with conn.cursor() as cursor:
-        # Customers Mapping
+        # Customers List
         cursor.execute('''
             SELECT c.id, c.name, c.email, c.contact, c.address, c.created_at, COUNT(o.id) as order_count 
             FROM customers c LEFT JOIN orders o ON c.id = o.customer_id 
@@ -215,15 +209,7 @@ def admin_dashboard():
             if isinstance(c['created_at'], datetime):
                 c['created_at'] = c['created_at'].strftime('%Y-%m-%d %H:%M')
 
-        # Weekly sales metrics analytics (last 7 days)
-        week_ago = (datetime.now() - timedelta(days=7))
-        cursor.execute(
-            "SELECT cookie_type, SUM(quantity) as total_qty, SUM(total_price) as total_rev FROM orders WHERE created_at >= %s GROUP BY cookie_type",
-            (week_ago,)
-        )
-        weekly = cursor.fetchall()
-
-        # Recent transactions view (loads last 30 entries)
+        # Recent Transactions
         cursor.execute('''
             SELECT o.*, c.name, c.contact, c.address, c.email 
             FROM orders o JOIN customers c ON o.customer_id = c.id 
@@ -234,16 +220,48 @@ def admin_dashboard():
             if isinstance(ro['created_at'], datetime):
                 ro['created_at'] = ro['created_at'].strftime('%Y-%m-%d %H:%M')
 
-        # Daily sales compilation parsing for charts
+        # ── EXTENDED METRICS FOR HIGHEST SALE TRACKING ────────────────────────
+        # 1. Lifetime Total Revenue
+        cursor.execute("SELECT SUM(total_price) as total_rev FROM orders WHERE status != 'Cancelled'")
+        rev_row = cursor.fetchone()
+        total_revenue = float(rev_row['total_rev']) if rev_row and rev_row['total_rev'] else 0.0
+
+        # 2. Total Volume of Individual Cookies Sold
+        cursor.execute("SELECT SUM(quantity) as total_qty FROM orders WHERE status != 'Cancelled'")
+        qty_row = cursor.fetchone()
+        total_cookies_sold = int(qty_row['total_qty']) if qty_row and qty_row['total_qty'] else 0
+
+        # 3. Find the #1 Highest / Best Selling Cookie
+        cursor.execute('''
+            SELECT cookie_type, SUM(quantity) as volume 
+            FROM orders WHERE status != 'Cancelled' 
+            GROUP BY cookie_type 
+            ORDER BY volume DESC LIMIT 1
+        ''')
+        best_seller_row = cursor.fetchone()
+        
+        if best_seller_row:
+            c_key = best_seller_row['cookie_type']
+            best_cookie_name = COOKIES[c_key]['name'] if c_key in COOKIES else c_key
+            best_cookie_sales = best_seller_row['volume']
+        else:
+            best_cookie_name = "No sales recorded"
+            best_cookie_sales = 0
+
+        # Weekly items list parsing for tables
+        week_ago = (datetime.now() - timedelta(days=7))
+        cursor.execute(
+            "SELECT cookie_type, SUM(quantity) as total_qty, SUM(total_price) as total_rev FROM orders WHERE created_at >= %s GROUP BY cookie_type",
+            (week_ago,)
+        )
+        weekly = cursor.fetchall()
+
+        # Daily timeline mapping
         daily_sales = []
         for i in range(6, -1, -1):
             day_start = (datetime.now() - timedelta(days=i)).replace(hour=0, minute=0, second=0, microsecond=0)
             day_end = day_start + timedelta(days=1)
-            
-            cursor.execute(
-                "SELECT SUM(quantity) as qty FROM orders WHERE created_at >= %s AND created_at < %s",
-                (day_start, day_end)
-            )
+            cursor.execute("SELECT SUM(quantity) as qty FROM orders WHERE created_at >= %s AND created_at < %s", (day_start, day_end))
             row = cursor.fetchone()
             qty_val = int(row['qty']) if row and row['qty'] is not None else 0
             daily_sales.append({'date': day_start.strftime('%Y-%m-%d'), 'qty': qty_val})
@@ -254,28 +272,26 @@ def admin_dashboard():
                            weekly=weekly,
                            recent_orders=recent_orders,
                            daily_sales=json.dumps(daily_sales),
-                           cookies=COOKIES)
+                           cookies=COOKIES,
+                           total_revenue=total_revenue,
+                           total_cookies_sold=total_cookies_sold,
+                           best_cookie_name=best_cookie_name,
+                           best_cookie_sales=best_cookie_sales)
 
-# FEATURE UPDATE: Route allowing admin modifications to status metrics and scheduling
 @app.route('/admin/update_order/<int:order_id>', methods=['POST'])
 def update_order(order_id):
     if not session.get('admin'):
         return redirect(url_for('admin_login'))
-        
     new_status = request.form.get('status')
     delivery_date = request.form.get('delivery_date', '').strip()
-    
     if not delivery_date:
         delivery_date = "Not Scheduled Yet"
 
     conn = get_db()
     with conn.cursor() as cursor:
-        cursor.execute(
-            'UPDATE orders SET status = %s, delivery_date = %s WHERE id = %s',
-            (new_status, delivery_date, order_id)
-        )
+        cursor.execute('UPDATE orders SET status = %s, delivery_date = %s WHERE id = %s', (new_status, delivery_date, order_id))
     conn.close()
-    flash(f'Order #{order_id} has been updated successfully!', 'success')
+    flash(f'Order #{order_id} updated successfully!', 'success')
     return redirect(url_for('admin_dashboard'))
 
 @app.route('/admin/logout')
