@@ -61,14 +61,14 @@ COOKIES = {
     'smores': {
         'name': "S'mores Cookie",
         'price': 75,
-        'desc': "A soft and chewy cookie inspired by the classic campfire treat. Made with rich chocolate, crushed graham crackers, and gooey marshmallows baked into every bite.",
+        'desc': "A soft and chewy cookie inspired by the classic campfire treat.",
         'emoji': '🔥',
         'tags': ['Bestseller', 'Fan Favorite']
     },
     'chocolate': {
         'name': 'Chocolate Cookie',
         'price': 65,
-        'desc': 'A classic chocolate cookie baked to perfection with a soft, chewy center and rich chocolate flavor in every bite.',
+        'desc': 'A classic chocolate cookie baked to perfection with a soft, chewy center.',
         'emoji': '🍫',
         'tags': ['Classic', 'All-Time Fave']
     }
@@ -197,7 +197,7 @@ def admin_dashboard():
 
     conn = get_db()
     with conn.cursor() as cursor:
-        # Customers List
+        # Customers Mapping
         cursor.execute('''
             SELECT c.id, c.name, c.email, c.contact, c.address, c.created_at, COUNT(o.id) as order_count 
             FROM customers c LEFT JOIN orders o ON c.id = o.customer_id 
@@ -220,18 +220,15 @@ def admin_dashboard():
             if isinstance(ro['created_at'], datetime):
                 ro['created_at'] = ro['created_at'].strftime('%Y-%m-%d %H:%M')
 
-        # ── EXTENDED METRICS FOR HIGHEST SALE TRACKING ────────────────────────
-        # 1. Lifetime Total Revenue
+        # Basic Counters calculations
         cursor.execute("SELECT SUM(total_price) as total_rev FROM orders WHERE status != 'Cancelled'")
         rev_row = cursor.fetchone()
         total_revenue = float(rev_row['total_rev']) if rev_row and rev_row['total_rev'] else 0.0
 
-        # 2. Total Volume of Individual Cookies Sold
         cursor.execute("SELECT SUM(quantity) as total_qty FROM orders WHERE status != 'Cancelled'")
         qty_row = cursor.fetchone()
         total_cookies_sold = int(qty_row['total_qty']) if qty_row and qty_row['total_qty'] else 0
 
-        # 3. Find the #1 Highest / Best Selling Cookie
         cursor.execute('''
             SELECT cookie_type, SUM(quantity) as volume 
             FROM orders WHERE status != 'Cancelled' 
@@ -248,7 +245,31 @@ def admin_dashboard():
             best_cookie_name = "No sales recorded"
             best_cookie_sales = 0
 
-        # Weekly items list parsing for tables
+        # GRAPH DATA 1: Product Volume Sales (For Pie Chart)
+        prod_labels = []
+        prod_data = []
+        for key, details in COOKIES.items():
+            cursor.execute("SELECT SUM(quantity) as vol FROM orders WHERE cookie_type = %s AND status != 'Cancelled'", (key,))
+            res = cursor.fetchone()
+            val = int(res['vol']) if res and res['vol'] is not None else 0
+            prod_labels.append(details['name'])
+            prod_data.append(val)
+
+        # GRAPH DATA 2: Chronological 7-Day Timeline Sales (For Line Chart)
+        timeline_labels = []
+        timeline_data = []
+        for i in range(6, -1, -1):
+            day_start = (datetime.now() - timedelta(days=i)).replace(hour=0, minute=0, second=0, microsecond=0)
+            day_end = day_start + timedelta(days=1)
+            
+            cursor.execute("SELECT SUM(quantity) as qty FROM orders WHERE created_at >= %s AND created_at < %s AND status != 'Cancelled'", (day_start, day_end))
+            row = cursor.fetchone()
+            qty_val = int(row['qty']) if row and row['qty'] is not None else 0
+            
+            timeline_labels.append(day_start.strftime('%b %d'))
+            timeline_data.append(qty_val)
+
+        # Weekly listing arrays
         week_ago = (datetime.now() - timedelta(days=7))
         cursor.execute(
             "SELECT cookie_type, SUM(quantity) as total_qty, SUM(total_price) as total_rev FROM orders WHERE created_at >= %s GROUP BY cookie_type",
@@ -256,27 +277,20 @@ def admin_dashboard():
         )
         weekly = cursor.fetchall()
 
-        # Daily timeline mapping
-        daily_sales = []
-        for i in range(6, -1, -1):
-            day_start = (datetime.now() - timedelta(days=i)).replace(hour=0, minute=0, second=0, microsecond=0)
-            day_end = day_start + timedelta(days=1)
-            cursor.execute("SELECT SUM(quantity) as qty FROM orders WHERE created_at >= %s AND created_at < %s", (day_start, day_end))
-            row = cursor.fetchone()
-            qty_val = int(row['qty']) if row and row['qty'] is not None else 0
-            daily_sales.append({'date': day_start.strftime('%Y-%m-%d'), 'qty': qty_val})
-
     conn.close()
     return render_template('admin_dashboard.html',
                            customers=customers,
                            weekly=weekly,
                            recent_orders=recent_orders,
-                           daily_sales=json.dumps(daily_sales),
                            cookies=COOKIES,
                            total_revenue=total_revenue,
                            total_cookies_sold=total_cookies_sold,
                            best_cookie_name=best_cookie_name,
-                           best_cookie_sales=best_cookie_sales)
+                           best_cookie_sales=best_cookie_sales,
+                           chart_labels=json.dumps(prod_labels),
+                           chart_data=json.dumps(prod_data),
+                           time_labels=json.dumps(timeline_labels),
+                           time_data=json.dumps(timeline_data))
 
 @app.route('/admin/update_order/<int:order_id>', methods=['POST'])
 def update_order(order_id):
