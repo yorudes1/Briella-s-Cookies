@@ -16,6 +16,13 @@
   .stat-card .subtext { font-size: 0.8rem; color: #a67c52; margin-top: 6px; font-weight: 500; }
   .card-highlight { border-top: 4px solid #a67c52; }
 
+  /* New Multi-Graph Reports Side-by-Side Layout Grid */
+  .reports-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 24px; margin-bottom: 40px; }
+  @media (max-width: 900px) { .reports-grid { grid-template-columns: 1fr; } }
+  .chart-card { background: #fff; border: 1px solid #e6dfd5; border-radius: 8px; padding: 24px; box-shadow: 0 4px 12px rgba(59,31,14,0.02); }
+  .chart-card h4 { font-family: 'Playfair Display', serif; font-size: 1.25rem; margin-bottom: 16px; color: #261206; border-bottom: 1px solid #faf7f2; padding-bottom: 10px; }
+  .canvas-wrapper { position: relative; height: 280px; width: 100%; }
+
   .section-title { font-family: 'Playfair Display', serif; font-size: 1.75rem; color: #261206; margin: 40px 0 20px 0; }
   
   .table-wrapper { background: #fff; border: 1px solid #e6dfd5; border-radius: 6px; overflow-x: auto; box-shadow: 0 4px 12px rgba(59,31,14,0.02); margin-bottom: 40px; }
@@ -59,6 +66,25 @@
       <div class="val">{{ customers|length }} Customers</div>
       <div class="subtext">Active customer database</div>
     </div>
+  </div>
+
+  <h2 class="section-title">Visual Business Reports</h2>
+  <div class="reports-grid">
+    
+    <div class="chart-card">
+      <h4>Most Sold Cookie Flavors</h4>
+      <div class="canvas-wrapper">
+        <canvas id="productPieChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h4>7-Day Store Order Volumetrics</h4>
+      <div class="canvas-wrapper">
+        <canvas id="trendsLineChart"></canvas>
+      </div>
+    </div>
+
   </div>
 
   <h2 class="section-title">Recent Order Logs & Real-Time Tracking</h2>
@@ -110,4 +136,63 @@
     </table>
   </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    // 1. Render Product Breakdown Distribution (Pie Chart)
+    const prodLabels = {{ chart_labels | safe }};
+    const prodData = {{ chart_data | safe }};
+    
+    new Chart(document.getElementById('productPieChart').getContext('2d'), {
+      type: 'pie',
+      data: {
+        labels: prodLabels,
+        datasets: [{
+          data: prodData,
+          backgroundColor: ['#a67c52', '#3b1f0e'],
+          borderColor: '#faf7f2',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { font: { family: 'Jost' }, color: '#3b1f0e' } }
+        }
+      }
+    });
+
+    // 2. Render Chronological Sales Trends (Line Chart)
+    const timeLabels = {{ time_labels | safe }};
+    const timeData = {{ time_data | safe }};
+
+    new Chart(document.getElementById('trendsLineChart').getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: timeLabels,
+        datasets: [{
+          label: 'Cookies Sold',
+          data: timeData,
+          borderColor: '#a67c52',
+          backgroundColor: 'rgba(166, 124, 82, 0.1)',
+          fill: true,
+          tension: 0.3,
+          borderWidth: 3,
+          pointBackgroundColor: '#3b1f0e'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, ticks: { font: { family: 'Jost' }, stepSize: 1 } },
+          x: { ticks: { font: { family: 'Jost' } } }
+        }
+      }
+    });
+  });
+</script>
 {% endblock %}
