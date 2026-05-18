@@ -1,0 +1,349 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard — Briella's Cookies{% endblock %}
+
+{% block extra_styles %}
+<style>
+  /* Admin navbar */
+  .admin-navbar {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--brown-dark);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 40px; height: 68px;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+  }
+  .admin-nav-left { display: flex; align-items: center; gap: 20px; }
+  .admin-brand { font-family: 'Playfair Display', serif; font-size: 1.35rem; font-weight: 700; color: var(--brown-cream); text-decoration: none; }
+  .admin-badge { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; background: var(--brown-warm); color: white; padding: 4px 10px; border-radius: 20px; }
+  .admin-nav-right { display: flex; align-items: center; gap: 20px; }
+  .admin-user-info { font-size: 0.82rem; color: var(--brown-light); }
+  .btn-logout { background: transparent; border: 1px solid rgba(200,149,106,0.4); color: var(--brown-light); padding: 7px 18px; border-radius: 2px; cursor: pointer; font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; transition: all 0.25s; }
+  .btn-logout:hover { background: var(--brown-mid); border-color: var(--brown-light); color: var(--brown-cream); }
+
+  /* Layout */
+  .admin-layout { max-width: 1300px; margin: 0 auto; padding: 48px 32px; }
+
+  /* Page header */
+  .page-header { margin-bottom: 48px; border-bottom: 1px solid var(--brown-cream); padding-bottom: 28px; }
+  .page-header-eyebrow { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--brown-light); margin-bottom: 6px; }
+  .page-header-title { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: var(--brown-dark); }
+  .page-header-sub { font-size: 0.88rem; color: var(--text-light); margin-top: 6px; }
+
+  /* Stat cards */
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 48px; }
+  .stat-card {
+    background: var(--white);
+    border: 1px solid var(--brown-cream);
+    border-radius: 6px;
+    padding: 28px 24px;
+    position: relative; overflow: hidden;
+  }
+  .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--brown-warm); }
+  .stat-card-icon { font-size: 1.8rem; margin-bottom: 12px; }
+  .stat-card-value { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: var(--brown-dark); font-weight: 700; }
+  .stat-card-label { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-light); margin-top: 4px; }
+
+  /* Section headers */
+  .section-head { display: flex; align-items: baseline; gap: 16px; margin-bottom: 24px; }
+  .section-head h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--brown-dark); }
+  .section-head span { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--brown-light); }
+
+  /* Charts area */
+  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-bottom: 48px; }
+  .chart-card { background: var(--white); border: 1px solid var(--brown-cream); border-radius: 6px; padding: 28px; }
+  .chart-card-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--brown-dark); margin-bottom: 6px; }
+  .chart-card-sub { font-size: 0.8rem; color: var(--text-light); margin-bottom: 24px; }
+  canvas { max-height: 240px; }
+
+  /* Cookie performance bars */
+  .cookie-perf { display: flex; flex-direction: column; gap: 20px; }
+  .perf-item { }
+  .perf-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .perf-name { font-weight: 500; font-size: 0.9rem; color: var(--text-dark); }
+  .perf-count { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--brown-warm); }
+  .perf-bar-track { height: 8px; background: var(--brown-blush); border-radius: 4px; overflow: hidden; }
+  .perf-bar { height: 100%; background: linear-gradient(90deg, var(--brown-warm), var(--brown-light)); border-radius: 4px; transition: width 1s ease; }
+  .perf-revenue { font-size: 0.78rem; color: var(--text-light); margin-top: 4px; }
+
+  /* Table */
+  .table-card { background: var(--white); border: 1px solid var(--brown-cream); border-radius: 6px; overflow: hidden; margin-bottom: 48px; }
+  .table-card-header { padding: 24px 28px; border-bottom: 1px solid var(--brown-cream); display: flex; justify-content: space-between; align-items: center; }
+  .table-card-header h3 { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--brown-dark); }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  thead { background: var(--brown-blush); }
+  thead th { padding: 13px 20px; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--brown-mid); text-align: left; }
+  tbody tr { border-bottom: 1px solid var(--brown-blush); transition: background 0.15s; }
+  tbody tr:hover { background: var(--brown-blush); }
+  tbody td { padding: 14px 20px; font-size: 0.87rem; color: var(--text-mid); }
+  .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+  .status-pending { background: #fef3cd; color: #856404; }
+  .status-completed { background: #d1f4e0; color: #166534; }
+
+  /* Customer table avatar */
+  .cust-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--brown-warm); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.88rem; flex-shrink: 0; }
+  .cust-cell { display: flex; align-items: center; gap: 12px; }
+  .cust-name { font-weight: 500; color: var(--text-dark); }
+  .cust-email { font-size: 0.78rem; color: var(--text-light); }
+
+  /* Tabs */
+  .tab-nav { display: flex; gap: 0; border-bottom: 1px solid var(--brown-cream); margin-bottom: 32px; }
+  .tab-btn {
+    padding: 14px 28px; font-family: 'Jost', sans-serif; font-size: 0.8rem; font-weight: 500;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    background: none; border: none; cursor: pointer;
+    color: var(--text-light); border-bottom: 2px solid transparent; margin-bottom: -1px;
+    transition: all 0.2s;
+  }
+  .tab-btn.active { color: var(--brown-warm); border-bottom-color: var(--brown-warm); }
+  .tab-btn:hover { color: var(--brown-warm); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+</style>
+{% endblock %}
+
+{% block navbar %}
+<nav class="admin-navbar">
+  <div class="admin-nav-left">
+    <a href="{{ url_for('admin_dashboard') }}" class="admin-brand">Briella's Cookies</a>
+    <span class="admin-badge">Admin</span>
+  </div>
+  <div class="admin-nav-right">
+    <span class="admin-user-info">AdminBriella</span>
+    <a href="{{ url_for('admin_logout') }}" class="btn-logout">Sign Out</a>
+  </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+  <!-- Page Header -->
+  <div class="page-header">
+    <p class="page-header-eyebrow">Control Center</p>
+    <h1 class="page-header-title">Admin Dashboard</h1>
+    <p class="page-header-sub">Welcome back, Briella. Here's what's happening this week.</p>
+  </div>
+
+  <!-- Stats -->
+  {% set total_orders = recent_orders|length %}
+  {% set total_customers = customers|length %}
+  {% set total_revenue = recent_orders|sum(attribute='total_price') %}
+  {% set smores_sold = weekly|selectattr('cookie_type','eq','smores')|list %}
+  {% set choco_sold = weekly|selectattr('cookie_type','eq','chocolate')|list %}
+  {% set smores_qty = smores_sold[0].total_qty if smores_sold else 0 %}
+  {% set choco_qty = choco_sold[0].total_qty if choco_sold else 0 %}
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-card-icon">👥</div>
+      <div class="stat-card-value">{{ total_customers }}</div>
+      <div class="stat-card-label">Total Customers</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-icon">📦</div>
+      <div class="stat-card-value">{{ total_orders }}</div>
+      <div class="stat-card-label">Recent Orders</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-icon">💰</div>
+      <div class="stat-card-value">₱{{ "%.0f"|format(total_revenue) }}</div>
+      <div class="stat-card-label">Total Revenue</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-icon">🍪</div>
+      <div class="stat-card-value">{{ smores_qty + choco_qty }}</div>
+      <div class="stat-card-label">Cookies Sold (Week)</div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="section-head">
+    <h2>Weekly Performance</h2>
+    <span>Last 7 days</span>
+  </div>
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-card-title">Daily Sales Volume</div>
+      <div class="chart-card-sub">Cookies sold per day this week</div>
+      <canvas id="dailyChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-title">Cookie Performance</div>
+      <div class="chart-card-sub">Weekly sales by cookie type</div>
+      <div class="cookie-perf" style="margin-top:16px;">
+        {% set total_week = smores_qty + choco_qty %}
+        {% set smores_pct = (smores_qty / total_week * 100) if total_week > 0 else 0 %}
+        {% set choco_pct  = (choco_qty  / total_week * 100) if total_week > 0 else 0 %}
+        {% set smores_rev = smores_sold[0].total_rev if smores_sold else 0 %}
+        {% set choco_rev  = choco_sold[0].total_rev  if choco_sold  else 0 %}
+
+        <div class="perf-item">
+          <div class="perf-header">
+            <span class="perf-name">🔥 S'mores Cookie</span>
+            <span class="perf-count">{{ smores_qty }} pcs</span>
+          </div>
+          <div class="perf-bar-track">
+            <div class="perf-bar" style="width:{{ smores_pct }}%"></div>
+          </div>
+          <div class="perf-revenue">Revenue: ₱{{ "%.0f"|format(smores_rev) }}</div>
+        </div>
+        <div class="perf-item">
+          <div class="perf-header">
+            <span class="perf-name">🍫 Chocolate Cookie</span>
+            <span class="perf-count">{{ choco_qty }} pcs</span>
+          </div>
+          <div class="perf-bar-track">
+            <div class="perf-bar" style="width:{{ choco_pct }}%; background: linear-gradient(90deg, #3B1F0E, #6B3A2A);"></div>
+          </div>
+          <div class="perf-revenue">Revenue: ₱{{ "%.0f"|format(choco_rev) }}</div>
+        </div>
+        {% if total_week == 0 %}
+        <p style="font-size:0.85rem;color:var(--text-light);text-align:center;padding:20px 0;">No sales data this week yet.</p>
+        {% else %}
+        <div style="margin-top:16px;padding:16px;background:var(--brown-blush);border-radius:4px;">
+          <p style="font-size:0.78rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--brown-mid);margin-bottom:6px;">Best Seller</p>
+          <p style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--brown-dark);">
+            {{ "🔥 S'mores Cookie" if smores_qty >= choco_qty else "🍫 Chocolate Cookie" }}
+          </p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs: Orders & Customers -->
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="showTab('orders', this)">Recent Orders</button>
+    <button class="tab-btn" onclick="showTab('customers', this)">Customers</button>
+  </div>
+
+  <!-- Orders Tab -->
+  <div class="tab-panel active" id="tab-orders">
+    <div class="table-card">
+      <div class="table-card-header">
+        <h3>Order Details</h3>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Order #</th>
+              <th>Customer</th>
+              <th>Contact</th>
+              <th>Address</th>
+              <th>Cookie</th>
+              <th>Qty</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for o in recent_orders %}
+            <tr>
+              <td>#{{ o.id }}</td>
+              <td>{{ o.name }}</td>
+              <td>{{ o.contact }}</td>
+              <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ o.address }}</td>
+              <td>{{ cookies[o.cookie_type].name if o.cookie_type in cookies else o.cookie_type }}</td>
+              <td>{{ o.quantity }}</td>
+              <td>₱{{ "%.0f"|format(o.total_price) }}</td>
+              <td><span class="status-badge status-{{ o.status.lower() }}">{{ o.status }}</span></td>
+              <td>{{ o.created_at[:16] }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-light);">No orders yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Customers Tab -->
+  <div class="tab-panel" id="tab-customers">
+    <div class="table-card">
+      <div class="table-card-header">
+        <h3>Customer Directory</h3>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Customer</th>
+              <th>Email</th>
+              <th>Contact</th>
+              <th>Address</th>
+              <th>Orders</th>
+              <th>Since</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in customers %}
+            <tr>
+              <td>
+                <div class="cust-cell">
+                  <div class="cust-avatar">{{ c.name[0].upper() }}</div>
+                  <div>
+                    <div class="cust-name">{{ c.name }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>{{ c.email }}</td>
+              <td>{{ c.contact }}</td>
+              <td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ c.address }}</td>
+              <td>{{ c.order_count }}</td>
+              <td>{{ c.created_at[:10] }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-light);">No customers yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const dailySales = {{ daily_sales|safe }};
+
+// Daily chart
+const ctx = document.getElementById('dailyChart').getContext('2d');
+new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: dailySales.map(d => {
+      const dt = new Date(d.date);
+      return dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    }),
+    datasets: [{
+      label: 'Cookies Sold',
+      data: dailySales.map(d => d.qty),
+      backgroundColor: 'rgba(155,94,60,0.7)',
+      borderColor: 'rgba(155,94,60,1)',
+      borderWidth: 1,
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: true, ticks: { stepSize: 1, color: '#9B7A60' }, grid: { color: 'rgba(200,149,106,0.1)' } },
+      x: { ticks: { color: '#9B7A60', font: { size: 11 } }, grid: { display: false } }
+    }
+  }
+});
+
+// Tab switching
+function showTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+{% endblock %}

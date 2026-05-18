@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Briella's Cookies{% endblock %}</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:wght@300;400;500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --brown-dark:   #3B1F0E;
+    --brown-mid:    #6B3A2A;
+    --brown-warm:   #9B5E3C;
+    --brown-light:  #C8956A;
+    --brown-cream:  #E8D5B7;
+    --brown-blush:  #F5EBD8;
+    --white:        #FDFAF5;
+    --text-dark:    #2C1810;
+    --text-mid:     #5A3825;
+    --text-light:   #9B7A60;
+    --gold:         #B8860B;
+    --gold-light:   #D4A843;
+    --shadow:       rgba(59,31,14,0.12);
+    --shadow-deep:  rgba(59,31,14,0.22);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Jost', sans-serif;
+    background: var(--white);
+    color: var(--text-dark);
+    min-height: 100vh;
+    font-weight: 300;
+  }
+
+  /* ── Flashes ── */
+  .flash-container { position: fixed; top: 80px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+  .flash {
+    padding: 14px 20px;
+    border-radius: 4px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    box-shadow: 0 4px 20px var(--shadow-deep);
+    animation: slideIn 0.3s ease;
+    max-width: 320px;
+  }
+  .flash.success { background: var(--brown-dark); color: var(--brown-cream); border-left: 3px solid var(--gold-light); }
+  .flash.error   { background: #5c1a1a; color: #f8d7d7; border-left: 3px solid #c0392b; }
+  @keyframes slideIn { from { transform: translateX(40px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+  /* ── Shared Navbar ── */
+  .navbar {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--brown-dark);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 48px;
+    height: 68px;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+  }
+  .navbar-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: var(--brown-cream);
+    text-decoration: none;
+    letter-spacing: 0.02em;
+  }
+  .navbar-brand span { color: var(--gold-light); }
+  .navbar-links { display: flex; align-items: center; gap: 28px; }
+  .navbar-links a {
+    color: var(--brown-cream);
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.85;
+    transition: opacity 0.2s;
+  }
+  .navbar-links a:hover { opacity: 1; color: var(--gold-light); }
+  .btn-logout {
+    background: transparent;
+    border: 1px solid rgba(200,149,106,0.4);
+    color: var(--brown-light) !important;
+    padding: 7px 18px;
+    border-radius: 2px;
+    cursor: pointer;
+    font-size: 0.78rem !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase !important;
+    transition: all 0.25s;
+    text-decoration: none;
+  }
+  .btn-logout:hover { background: var(--brown-mid); border-color: var(--brown-light); opacity: 1 !important; }
+
+  /* ── Footer ── */
+  .footer {
+    background: var(--brown-dark);
+    color: var(--brown-cream);
+    text-align: center;
+    padding: 40px 24px 28px;
+    margin-top: 80px;
+  }
+  .footer-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    margin-bottom: 12px;
+    color: var(--gold-light);
+  }
+  .footer-info { font-size: 0.82rem; line-height: 2; opacity: 0.75; }
+  .footer-divider { width: 40px; height: 1px; background: var(--brown-light); margin: 16px auto; opacity: 0.4; }
+  .footer-copy { font-size: 0.74rem; opacity: 0.45; margin-top: 14px; }
+</style>
+{% block extra_styles %}{% endblock %}
+</head>
+<body>
+<div class="flash-container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="flash {{ cat }}">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+</div>
+{% block navbar %}{% endblock %}
+{% block content %}{% endblock %}
+<footer class="footer">
+  <div class="footer-brand">Briella's Cookies</div>
+  <div class="footer-divider"></div>
+  <div class="footer-info">
+    📞 0906 512 5377<br>
+    Facebook: <strong>Lara Cinco</strong>
+  </div>
+  <div class="footer-copy">© 2024 Briella's Cookies · Homemade with Love</div>
+</footer>
+<script>
+  setTimeout(() => {
+    document.querySelectorAll('.flash').forEach(f => f.style.opacity = '0');
+  }, 4000);
+</script>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+{% block title %}Our Cookies — Briella's Cookies{% endblock %}
+
+{% block extra_styles %}
+<style>
+  /* Navbar */
+  .navbar { display: flex; align-items: center; justify-content: space-between; padding: 0 48px; height: 68px; background: var(--brown-dark); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 20px rgba(0,0,0,0.3); }
+  .navbar-brand { font-family: 'Playfair Display', serif; font-size: 1.45rem; font-weight: 700; color: var(--brown-cream); text-decoration: none; }
+  .navbar-brand span { color: var(--gold-light); }
+  .nav-user { display: flex; align-items: center; gap: 20px; }
+  .nav-greeting { font-size: 0.82rem; color: var(--brown-light); letter-spacing: 0.05em; }
+  .nav-greeting strong { color: var(--brown-cream); }
+  .btn-logout { background: transparent; border: 1px solid rgba(200,149,106,0.4); color: var(--brown-light); padding: 7px 18px; border-radius: 2px; cursor: pointer; font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; transition: all 0.25s; }
+  .btn-logout:hover { background: var(--brown-mid); border-color: var(--brown-light); color: var(--brown-cream); }
+
+  /* Hero Banner */
+  .shop-hero {
+    background: var(--brown-dark);
+    position: relative; overflow: hidden;
+    padding: 72px 48px;
+    text-align: center;
+  }
+  .shop-hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center, rgba(155,94,60,0.3) 0%, transparent 65%);
+  }
+  .shop-hero-pattern {
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle, rgba(200,149,106,0.05) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  .shop-hero-content { position: relative; }
+  .shop-hero-eyebrow { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold-light); margin-bottom: 12px; }
+  .shop-hero-title { font-family: 'Playfair Display', serif; font-size: 3rem; color: var(--brown-cream); line-height: 1.15; }
+  .shop-hero-title em { color: var(--gold-light); font-style: italic; }
+  .shop-hero-sub { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; color: var(--brown-light); margin-top: 12px; opacity: 0.85; }
+
+  /* Main content */
+  .shop-container { max-width: 1100px; margin: 0 auto; padding: 64px 24px; }
+
+  /* Section header */
+  .section-header { text-align: center; margin-bottom: 48px; }
+  .section-eyebrow { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--brown-light); margin-bottom: 8px; }
+  .section-title { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: var(--brown-dark); }
+  .section-line { width: 40px; height: 2px; background: var(--gold-light); margin: 16px auto 0; }
+
+  /* Cookie cards */
+  .cookies-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 72px; }
+  .cookie-card {
+    background: var(--white);
+    border: 1px solid var(--brown-cream);
+    border-radius: 6px;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .cookie-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px var(--shadow); }
+
+  .cookie-card-img {
+    height: 200px;
+    background: var(--brown-blush);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 6rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .cookie-card-img::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, transparent 50%, rgba(59,31,14,0.06) 100%);
+  }
+
+  .cookie-tags { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .cookie-tag {
+    font-size: 0.68rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 2px;
+    background: var(--brown-blush); color: var(--brown-warm);
+    border: 1px solid var(--brown-cream);
+  }
+
+  .cookie-body { padding: 28px; }
+  .cookie-name { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--brown-dark); margin-bottom: 6px; }
+  .cookie-price { font-size: 1.05rem; font-weight: 600; color: var(--brown-warm); margin-bottom: 14px; letter-spacing: 0.04em; }
+  .cookie-desc { font-size: 0.87rem; line-height: 1.75; color: var(--text-mid); margin-bottom: 24px; }
+
+  /* Order form */
+  .order-form { border-top: 1px solid var(--brown-cream); padding-top: 20px; display: flex; align-items: center; gap: 12px; }
+  .qty-label { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); }
+  .qty-input {
+    width: 72px; padding: 9px 12px;
+    border: 1px solid var(--brown-cream); border-radius: 3px;
+    font-family: 'Jost', sans-serif; font-size: 0.92rem; color: var(--text-dark);
+    text-align: center; outline: none; transition: border-color 0.2s;
+  }
+  .qty-input:focus { border-color: var(--brown-warm); }
+  .btn-order {
+    flex: 1; padding: 11px 20px;
+    background: var(--brown-dark); color: var(--brown-cream);
+    border: none; border-radius: 3px;
+    font-family: 'Jost', sans-serif; font-size: 0.78rem; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    cursor: pointer; transition: all 0.25s;
+  }
+  .btn-order:hover { background: var(--brown-mid); box-shadow: 0 4px 16px var(--shadow-deep); }
+
+  /* Order history */
+  .orders-section { margin-top: 16px; }
+  .orders-table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  thead { background: var(--brown-dark); }
+  thead th { padding: 14px 18px; font-size: 0.74rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--brown-cream); text-align: left; }
+  tbody tr { border-bottom: 1px solid var(--brown-blush); transition: background 0.15s; }
+  tbody tr:hover { background: var(--brown-blush); }
+  tbody td { padding: 14px 18px; font-size: 0.88rem; color: var(--text-mid); }
+  .status-badge {
+    display: inline-block; padding: 4px 12px; border-radius: 20px;
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .status-pending { background: #fef3cd; color: #856404; }
+  .status-completed { background: #d1f4e0; color: #166534; }
+  .empty-orders { text-align: center; padding: 40px; color: var(--text-light); font-size: 0.9rem; }
+</style>
+{% endblock %}
+
+{% block navbar %}
+<nav class="navbar">
+  <a href="{{ url_for('shop') }}" class="navbar-brand">Briella's <span>Cookies</span></a>
+  <div class="nav-user">
+    <span class="nav-greeting">Hello, <strong>{{ session.user_name }}</strong></span>
+    <a href="{{ url_for('logout') }}" class="btn-logout">Sign Out</a>
+  </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="shop-hero">
+  <div class="shop-hero-pattern"></div>
+  <div class="shop-hero-content">
+    <p class="shop-hero-eyebrow">Freshly Baked, Just for You</p>
+    <h1 class="shop-hero-title">Our <em>Signature</em> Cookies</h1>
+    <p class="shop-hero-sub">Handcrafted with premium ingredients, baked with love</p>
+  </div>
+</div>
+
+<div class="shop-container">
+  <!-- Cookie Menu -->
+  <div class="section-header">
+    <p class="section-eyebrow">Choose Your Treat</p>
+    <h2 class="section-title">The Cookie Menu</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="cookies-grid">
+    {% for key, cookie in cookies.items() %}
+    <div class="cookie-card">
+      <div class="cookie-card-img">{{ cookie.emoji }}</div>
+      <div class="cookie-body">
+        <div class="cookie-tags">
+          {% for tag in cookie.tags %}
+          <span class="cookie-tag">{{ tag }}</span>
+          {% endfor %}
+        </div>
+        <h3 class="cookie-name">{{ cookie.name }}</h3>
+        <p class="cookie-price">₱{{ cookie.price }} per piece</p>
+        <p class="cookie-desc">{{ cookie.desc }}</p>
+        <form method="POST" action="{{ url_for('order') }}" class="order-form">
+          <input type="hidden" name="cookie_type" value="{{ key }}">
+          <span class="qty-label">Qty</span>
+          <input type="number" name="quantity" value="1" min="1" max="100" class="qty-input">
+          <button type="submit" class="btn-order">Add to Order</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Order History -->
+  <div class="section-header">
+    <p class="section-eyebrow">Your History</p>
+    <h2 class="section-title">Recent Orders</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="orders-table-wrap">
+    {% if orders %}
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Cookie</th>
+          <th>Qty</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for o in orders %}
+        <tr>
+          <td>{{ o.id }}</td>
+          <td>{{ cookies[o.cookie_type].name if o.cookie_type in cookies else o.cookie_type }}</td>
+          <td>{{ o.quantity }}</td>
+          <td>₱{{ "%.0f"|format(o.total_price) }}</td>
+          <td><span class="status-badge status-{{ o.status.lower() }}">{{ o.status }}</span></td>
+          <td>{{ o.created_at[:16] }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-orders">
+      <div style="font-size:2.5rem;margin-bottom:12px;">🍪</div>
+      <p>No orders yet — treat yourself!</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

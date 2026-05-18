@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block title %}Create Account — Briella's Cookies{% endblock %}
+
+{% block extra_styles %}
+<style>
+  body { background: var(--brown-blush); }
+  .auth-wrapper {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .auth-hero {
+    background: var(--brown-dark);
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    padding: 60px 48px;
+    position: relative; overflow: hidden;
+  }
+  .auth-hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 30% 50%, rgba(155,94,60,0.25) 0%, transparent 60%);
+  }
+  .hero-pattern { position: absolute; inset: 0; background-image: radial-gradient(circle, rgba(200,149,106,0.06) 1px, transparent 1px); background-size: 28px 28px; }
+  .auth-hero-content { position: relative; text-align: center; }
+  .hero-cookie-icon { font-size: 4.5rem; margin-bottom: 20px; display: block; animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+  .hero-title { font-family: 'Playfair Display', serif; font-size: 2.4rem; color: var(--brown-cream); line-height: 1.2; margin-bottom: 8px; }
+  .hero-title em { color: var(--gold-light); font-style: italic; }
+  .hero-tagline { font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: var(--brown-light); letter-spacing: 0.08em; margin-top: 10px; opacity: 0.85; }
+  .hero-divider { width: 50px; height: 1px; background: var(--gold-light); margin: 20px auto; opacity: 0.5; }
+  .hero-perks { list-style: none; text-align: left; display: inline-block; }
+  .hero-perks li { font-size: 0.85rem; color: var(--brown-cream); opacity: 0.7; margin: 8px 0; display: flex; align-items: center; gap: 10px; }
+  .hero-perks li::before { content: '✦'; color: var(--gold-light); font-size: 0.65rem; }
+
+  .auth-form-panel {
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    padding: 50px 56px;
+    background: var(--white);
+    overflow-y: auto;
+  }
+  .auth-card { width: 100%; max-width: 400px; }
+  .auth-card-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--brown-light); margin-bottom: 8px; }
+  .auth-card-title { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--brown-dark); margin-bottom: 28px; line-height: 1.2; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-group { margin-bottom: 18px; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-group label { display: block; font-size: 0.78rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-mid); margin-bottom: 7px; }
+  .form-group input, .form-group textarea {
+    width: 100%; padding: 12px 15px;
+    border: 1px solid var(--brown-cream); border-radius: 3px;
+    background: var(--white);
+    font-family: 'Jost', sans-serif; font-size: 0.9rem; color: var(--text-dark);
+    transition: border-color 0.2s, box-shadow 0.2s; outline: none; resize: none;
+  }
+  .form-group input:focus, .form-group textarea:focus { border-color: var(--brown-warm); box-shadow: 0 0 0 3px rgba(155,94,60,0.1); }
+  .form-group input::placeholder, .form-group textarea::placeholder { color: var(--text-light); }
+
+  .btn-primary {
+    width: 100%; padding: 15px;
+    background: var(--brown-dark); color: var(--brown-cream);
+    border: none; border-radius: 3px;
+    font-family: 'Jost', sans-serif; font-size: 0.82rem; font-weight: 600;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    cursor: pointer; transition: all 0.25s; margin-top: 6px;
+  }
+  .btn-primary:hover { background: var(--brown-mid); transform: translateY(-1px); box-shadow: 0 6px 20px var(--shadow-deep); }
+  .auth-switch { text-align: center; margin-top: 20px; font-size: 0.84rem; color: var(--text-light); }
+  .auth-switch a { color: var(--brown-warm); text-decoration: none; font-weight: 500; border-bottom: 1px solid transparent; transition: border-color 0.2s; }
+  .auth-switch a:hover { border-color: var(--brown-warm); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+  <div class="auth-hero">
+    <div class="hero-pattern"></div>
+    <div class="auth-hero-content">
+      <span class="hero-cookie-icon">🍪</span>
+      <h1 class="hero-title">Join<br><em>Briella's</em></h1>
+      <p class="hero-tagline">Your sweet journey starts here</p>
+      <div class="hero-divider"></div>
+      <ul class="hero-perks">
+        <li>Order handcrafted cookies online</li>
+        <li>Track your order history</li>
+        <li>Get exclusive updates & offers</li>
+        <li>Fresh-baked, delivered with love</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="auth-form-panel">
+    <div class="auth-card">
+      <p class="auth-card-label">New here?</p>
+      <h2 class="auth-card-title">Create Account</h2>
+
+      <form method="POST">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" name="name" placeholder="Your full name" required>
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" name="email" placeholder="you@email.com" required>
+        </div>
+        <div class="form-group">
+          <label>Contact Number</label>
+          <input type="tel" name="contact" placeholder="09XX XXX XXXX" required>
+        </div>
+        <div class="form-group">
+          <label>Delivery Address</label>
+          <textarea name="address" placeholder="House/Unit No., Street, Barangay, City" rows="2" required></textarea>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" name="password" placeholder="Create a password" required>
+        </div>
+        <button type="submit" class="btn-primary">Create Account</button>
+      </form>
+      <p class="auth-switch">Already have an account? <a href="{{ url_for('login') }}">Sign in</a></p>
+    </div>
+  </div>
+</div>
+{% endblock %}
