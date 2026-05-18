@@ -1,325 +1,98 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login — Briella's Cookies</title>
+{% extends 'base.html' %}
+{% block title %}Sign In — Briella's Cookies{% endblock %}
+
+{% block extra_styles %}
+<style>
+  body { background: var(--brown-blush); }
+  .auth-wrapper { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; }
+  .auth-hero {
+    background: var(--brown-dark);
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    padding: 60px 48px; position: relative; overflow: hidden;
+  }
+  .auth-hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 30% 50%, rgba(155,94,60,0.25) 0%, transparent 60%);
+  }
+  .hero-pattern { position: absolute; inset: 0; background-image: radial-gradient(circle, rgba(200,149,106,0.06) 1px, transparent 1px); background-size: 28px 28px; }
+  .auth-hero-content { position: relative; text-align: center; }
+  .hero-cookie-icon { font-size: 4.5rem; margin-bottom: 20px; display: block; }
+  .auth-hero-title { font-family: 'Playfair Display', serif; font-size: 2.8rem; color: var(--brown-cream); line-height: 1.2; margin-bottom: 16px; }
+  .auth-hero-title span { color: var(--gold-light); font-style: italic; font-family: 'Cormorant Garamond', serif; }
+  .auth-hero-sub { font-size: 0.95rem; color: var(--brown-light); max-width: 320px; margin: 0 auto; line-height: 1.6; letter-spacing: 0.02em; }
   
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  .auth-form-panel { display: flex; align-items: center; justify-content: center; padding: 60px 40px; background: var(--white); }
+  .auth-card { width: 100%; max-width: 400px; }
+  .auth-card-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--brown-warm); margin-bottom: 8px; }
+  .auth-card-title { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: var(--brown-dark); margin-bottom: 32px; }
+  
+  .form-group { margin-bottom: 22px; }
+  .form-group label { display: block; font-size: 0.78rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-mid); margin-bottom: 8px; }
+  .form-group input {
+    width: 100%; padding: 12px 16px; border: 1px solid var(--brown-cream); border-radius: 4px;
+    font-family: 'Jost', sans-serif; font-size: 0.92rem; color: var(--text-dark); background: var(--white);
+    outline: none; transition: all 0.2s;
+  }
+  .form-group input:focus { border-color: var(--brown-warm); box-shadow: 0 0 0 3px rgba(155,94,60,0.08); }
+  
+  .btn-primary {
+    width: 100%; padding: 14px; background: var(--brown-dark); color: var(--brown-cream);
+    border: none; border-radius: 4px; font-family: 'Jost', sans-serif; font-size: 0.82rem; font-weight: 600;
+    letter-spacing: 0.16em; text-transform: uppercase; cursor: pointer; transition: all 0.25s; margin-top: 10px;
+  }
+  .btn-primary:hover { background: var(--brown-mid); box-shadow: 0 8px 24px var(--shadow-deep); }
+  
+  .auth-switch { text-align: center; margin-top: 24px; font-size: 0.88rem; color: var(--text-light); }
+  .auth-switch a { color: var(--brown-warm); font-weight: 500; text-decoration: none; transition: color 0.2s; }
+  .auth-switch a:hover { color: var(--brown-dark); text-decoration: underline; }
 
-  <style>
-    /* --- Premium Cookie Shop Palette --- */
-    :root {
-      --brown-dark: #3C2F2F;      /* Deep dark espresso espresso */
-      --brown-warm: #8C6239;      /* Smooth milk chocolate accent */
-      --brown-light: #A8927A;     /* Muted taupe/biscuit */
-      --brown-cream: #F7F3EC;     /* Warm ivory panel background */
-      --white-luxury: #FDFBF7;    /* Crisp elite soft-white background */
-      --border-soft: #EFEBE4;     /* Elegant dividing line cream */
-      
-      --font-serif: 'Playfair Display', serif;
-      --font-display: 'Cormorant Garamond', serif;
-      --font-sans: 'Jost', sans-serif;
-    }
+  .portal-toggle {
+    text-align: center; margin-top: 32px; padding-top: 24px;
+    border-top: 1px dashed var(--brown-cream);
+  }
+  .btn-secondary {
+    display: inline-block; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--text-light); text-decoration: none;
+    padding: 8px 16px; border: 1px solid var(--brown-cream); border-radius: 4px; transition: all 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--brown-warm); color: var(--brown-dark); background: var(--brown-blush); }
+</style>
+{% endblock %}
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      background: var(--white-luxury);
-      font-family: var(--font-sans);
-      color: var(--brown-dark);
-      -webkit-font-smoothing: antialiased;
-    }
-
-    .auth-wrapper {
-      min-height: 100vh;
-      display: grid;
-      grid-template-columns: 1fr 1.2fr;
-    }
-
-    /* --- Left Panel: Editorial Showcase --- */
-    .auth-hero {
-      background: var(--brown-cream);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 5rem 4rem;
-      position: relative;
-      border-right: 1px solid var(--border-soft);
-    }
-
-    /* Elegant fine-line accent border inside the hero panel */
-    .auth-hero::after {
-      content: '';
-      position: absolute;
-      inset: 24px;
-      border: 1px solid rgba(140, 98, 57, 0.15);
-      pointer-events: none;
-    }
-
-    .auth-hero-content {
-      position: relative;
-      margin-top: auto;
-      margin-bottom: auto;
-      max-width: 400px;
-    }
-
-    .hero-title {
-      font-family: var(--font-serif);
-      font-size: 3.5rem;
-      font-weight: 400;
-      color: var(--brown-dark);
-      line-height: 1.1;
-      letter-spacing: -1px;
-    }
-
-    .hero-title em {
-      color: var(--brown-warm);
-      font-style: italic;
-      font-family: var(--font-serif);
-    }
-
-    .hero-tagline {
-      font-family: var(--font-display);
-      font-size: 1.2rem;
-      font-style: italic;
-      color: var(--brown-light);
-      margin-top: 1.2rem;
-      letter-spacing: 0.05em;
-    }
-
-    .hero-divider {
-      width: 40px;
-      height: 1px;
-      background: var(--brown-warm);
-      margin: 2rem 0;
-      opacity: 0.6;
-    }
-
-    .hero-quote {
-      font-family: var(--font-display);
-      font-size: 1.05rem;
-      color: var(--brown-dark);
-      opacity: 0.75;
-      font-style: italic;
-      line-height: 1.6;
-    }
-
-    /* Bottom footer credentials container */
-    .hero-footer-signature {
-      font-size: 0.78rem;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      color: var(--brown-light);
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      z-index: 2;
-    }
-
-    .hero-footer-signature .dot {
-      color: var(--brown-warm);
-    }
-
-    /* --- Right Panel: Minimalist Input Form --- */
-    .auth-form-panel {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 4rem;
-      background: var(--white-luxury);
-    }
-
-    .auth-card {
-      width: 100%;
-      max-width: 380px;
-    }
-
-    .auth-card-label {
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--brown-light);
-      margin-bottom: 0.5rem;
-    }
-
-    .auth-card-title {
-      font-family: var(--font-serif);
-      font-size: 2.4rem;
-      font-weight: 400;
-      color: var(--brown-dark);
-      margin-bottom: 2.5rem;
-    }
-
-    .form-group {
-      margin-bottom: 1.8rem;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--brown-dark);
-      margin-bottom: 0.6rem;
-    }
-
-    /* Clean typography input style with subtle bottom indicator line */
-    .form-group input {
-      width: 100%;
-      padding: 1rem 0;
-      border: none;
-      border-bottom: 1px solid var(--brown-light);
-      background: transparent;
-      font-family: var(--font-sans);
-      font-size: 1rem;
-      color: var(--brown-dark);
-      transition: border-color 0.3s ease;
-      border-radius: 0;
-      outline: none;
-    }
-
-    .form-group input:focus {
-      border-bottom-color: var(--brown-dark);
-    }
-
-    .form-group input::placeholder {
-      color: #CBC4BB;
-    }
-
-    /* Sophisticated blocks signature button layout */
-    .btn-primary {
-      width: 100%;
-      padding: 1.2rem;
-      background: var(--brown-dark);
-      color: var(--white-luxury);
-      border: none;
-      font-family: var(--font-sans);
-      font-size: 0.85rem;
-      font-weight: 600;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      margin-top: 1rem;
-    }
-
-    .btn-primary:hover {
-      background: var(--brown-warm);
-    }
-
-    .auth-switch {
-      text-align: center;
-      margin-top: 2rem;
-      font-size: 0.9rem;
-      color: var(--brown-light);
-    }
-
-    .auth-switch a {
-      color: var(--brown-warm);
-      text-decoration: none;
-      font-weight: 500;
-    }
-
-    .auth-switch a:hover {
-      text-decoration: underline;
-    }
-
-    .admin-link {
-      text-align: center;
-      margin-top: 3.5rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid var(--border-soft);
-    }
-
-    .admin-link a {
-      color: var(--brown-light);
-      text-decoration: none;
-      font-size: 0.8rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      transition: color 0.2s ease;
-    }
-
-    .admin-link a:hover {
-      color: var(--brown-dark);
-    }
-
-    /* Responsive adjustments for phone and tablets */
-    @media (max-width: 768px) {
-      .auth-wrapper {
-        grid-template-columns: 1fr;
-      }
-      .auth-hero {
-        padding: 4rem 2rem;
-        min-height: auto;
-      }
-      .auth-hero::after {
-        inset: 12px;
-      }
-      .hero-footer-signature {
-        margin-top: 2rem;
-      }
-      .auth-form-panel {
-        padding: 4rem 2rem;
-      }
-    }
-  </style>
-</head>
-<body>
-
+{% block content %}
 <div class="auth-wrapper">
   <div class="auth-hero">
-    <div></div>
-    
+    <div class="hero-pattern"></div>
     <div class="auth-hero-content">
-      <h1 class="hero-title">Briella's<br><em>Cookies</em></h1>
-      <p class="hero-tagline">Handcrafted with love</p>
-      <div class="hero-divider"></div>
-      <p class="hero-quote">"Every cookie is baked with care, warmth, and a little magic."</p>
-    </div>
-    
-    <div class="hero-footer-signature">
-      <span>0906 512 5377</span>
-      <span class="dot">•</span>
-      <span>Lara Cinco</span>
+      <span class="hero-cookie-icon">🍪</span>
+      <h1 class="auth-hero-title">Briella's <span>Cookies</span></h1>
+      <p class="auth-hero-sub">Welcome back! Sign in to view today's freshly baked treats.</p>
     </div>
   </div>
 
   <div class="auth-form-panel">
     <div class="auth-card">
-      <p class="auth-card-label">Welcome back</p>
-      <h2 class="auth-card-title">Sign In</h2>
+      <p class="auth-card-label">Welcome Back</p>
+      <h2 class="auth-card-title">Customer Sign In</h2>
 
-      <form onsubmit="event.preventDefault();">
+      <form method="POST" action="{{ url_for('login') }}">
         <div class="form-group">
-          <label for="email">Email Address</label>
-          <input type="email" id="email" placeholder="you@email.com" required>
+          <label>Email Address</label>
+          <input type="email" name="email" placeholder="enter your email address" required>
         </div>
         <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" placeholder="••••••••" required>
+          <label>Password</label>
+          <input type="password" name="password" placeholder="enter your password" required>
         </div>
         <button type="submit" class="btn-primary">Sign In</button>
       </form>
 
-      <p class="auth-switch">Don't have an account? <a href="#">Create one</a></p>
-
-      <div class="admin-link">
-        <a href="#">Admin Portal</a>
+      <p class="auth-switch">Don't have an account? <a href="{{ url_for('register') }}">Register here</a></p>
+      
+      <div class="portal-toggle">
+        <a href="{{ url_for('admin_login') }}" class="btn-secondary">Switch to Admin Portal</a>
       </div>
     </div>
   </div>
 </div>
-
-</body>
-</html>
+{% endblock %}
