@@ -30,7 +30,7 @@ def get_db():
     )
 
 def init_db():
-    """Generates production tables inside MySQL if they do not exist."""
+    """Generates production tables and applies live structural schema updates."""
     conn = get_db()
     with conn.cursor() as cursor:
         cursor.execute('''CREATE TABLE IF NOT EXISTS customers (
@@ -51,9 +51,14 @@ def init_db():
             status VARCHAR(50) DEFAULT 'Pending',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )''')
+        
+        # FEATURE UPDATE: Checks for and appends delivery_date feature seamlessly if missing
+        cursor.execute("SHOW COLUMNS FROM orders LIKE 'delivery_date'")
+        if not cursor.fetchone():
+            cursor.execute("ALTER TABLE orders ADD COLUMN delivery_date VARCHAR(100) DEFAULT 'Not Scheduled Yet'")
     conn.close()
 
-# Initialize database tables on start
+# Initialize tables immediately upon application startup
 init_db()
 
 COOKIES = {
@@ -91,7 +96,6 @@ def login():
         
         conn = get_db()
         with conn.cursor() as cursor:
-            # FIXED: Changed from '?' placeholder to MySQL '%s' placeholder
             cursor.execute('SELECT * FROM customers WHERE email = %s', (email,))
             user = cursor.fetchone()
         conn.close()
@@ -101,8 +105,7 @@ def login():
             session['user_name'] = user['name']
             return redirect(url_for('shop'))
         flash('Invalid email or password.', 'error')
-    
-    return render_template('login.html')  # Properly displays Customer Login
+    return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -117,7 +120,6 @@ def register():
         conn = get_db()
         try:
             with conn.cursor() as cursor:
-                # FIXED: Changed '?' parameters to '%s' to support Aiven MySQL account insertion
                 cursor.execute(
                     'INSERT INTO customers (name, email, password, contact, address) VALUES (%s, %s, %s, %s, %s)',
                     (name, email, hashed, contact, address)
@@ -137,16 +139,15 @@ def shop():
         
     conn = get_db()
     with conn.cursor() as cursor:
-        # FIXED: Updated '?' to '%s'
         cursor.execute(
-            'SELECT * FROM orders WHERE customer_id = %s ORDER BY created_at DESC LIMIT 5',
+            'SELECT * FROM orders WHERE customer_id = %s ORDER BY created_at DESC LIMIT 10',
             (session['user_id'],)
         )
         orders = cursor.fetchall()
         
         for order in orders:
             if 'created_at' in order and isinstance(order['created_at'], datetime):
-                order['created_at'] = order['created_at'].strftime('%Y-%m-%d %H:%M:%S')
+                order['created_at'] = order['created_at'].strftime('%Y-%m-%d %H:%M')
                 
     conn.close()
     return render_template('shop.html', cookies=COOKIES, orders=orders)
@@ -167,7 +168,6 @@ def order():
     
     conn = get_db()
     with conn.cursor() as cursor:
-        # FIXED: Updated '?' to '%s'
         cursor.execute(
             'INSERT INTO orders (customer_id, cookie_type, quantity, total_price) VALUES (%s, %s, %s, %s)',
             (session['user_id'], cookie_type, quantity, price)
@@ -190,10 +190,6 @@ ADMIN_PASS = '12345'
 @app.route('/admin', methods=['GET', 'POST'])
 def admin_login():
     if request.method == 'POST':
-        if 'username' not in request.form or 'password' not in request.form:
-            flash('Invalid admin form submission.', 'error')
-            return redirect(url_for('admin_login'))
-
         if request.form['username'] == ADMIN_USER and request.form['password'] == ADMIN_PASS:
             session['admin'] = True
             return redirect(url_for('admin_dashboard'))
@@ -217,27 +213,26 @@ def admin_dashboard():
         customers = cursor.fetchall()
         for c in customers:
             if isinstance(c['created_at'], datetime):
-                c['created_at'] = c['created_at'].strftime('%Y-%m-%d %H:%M:%S')
+                c['created_at'] = c['created_at'].strftime('%Y-%m-%d %H:%M')
 
-        # Weekly sales (last 7 days)
+        # Weekly sales metrics analytics (last 7 days)
         week_ago = (datetime.now() - timedelta(days=7))
-        # FIXED: Updated '?' to '%s'
         cursor.execute(
             "SELECT cookie_type, SUM(quantity) as total_qty, SUM(total_price) as total_rev FROM orders WHERE created_at >= %s GROUP BY cookie_type",
             (week_ago,)
         )
         weekly = cursor.fetchall()
 
-        # Recent transactions listing
+        # Recent transactions view (loads last 30 entries)
         cursor.execute('''
             SELECT o.*, c.name, c.contact, c.address, c.email 
             FROM orders o JOIN customers c ON o.customer_id = c.id 
-            ORDER BY o.created_at DESC LIMIT 20
+            ORDER BY o.created_at DESC LIMIT 30
         ''')
         recent_orders = cursor.fetchall()
         for ro in recent_orders:
             if isinstance(ro['created_at'], datetime):
-                ro['created_at'] = ro['created_at'].strftime('%Y-%m-%d %H:%M:%S')
+                ro['created_at'] = ro['created_at'].strftime('%Y-%m-%d %H:%M')
 
         # Daily sales compilation parsing for charts
         daily_sales = []
@@ -245,7 +240,6 @@ def admin_dashboard():
             day_start = (datetime.now() - timedelta(days=i)).replace(hour=0, minute=0, second=0, microsecond=0)
             day_end = day_start + timedelta(days=1)
             
-            # FIXED: Updated '?' to '%s'
             cursor.execute(
                 "SELECT SUM(quantity) as qty FROM orders WHERE created_at >= %s AND created_at < %s",
                 (day_start, day_end)
@@ -261,6 +255,28 @@ def admin_dashboard():
                            recent_orders=recent_orders,
                            daily_sales=json.dumps(daily_sales),
                            cookies=COOKIES)
+
+# FEATURE UPDATE: Route allowing admin modifications to status metrics and scheduling
+@app.route('/admin/update_order/<int:order_id>', methods=['POST'])
+def update_order(order_id):
+    if not session.get('admin'):
+        return redirect(url_for('admin_login'))
+        
+    new_status = request.form.get('status')
+    delivery_date = request.form.get('delivery_date', '').strip()
+    
+    if not delivery_date:
+        delivery_date = "Not Scheduled Yet"
+
+    conn = get_db()
+    with conn.cursor() as cursor:
+        cursor.execute(
+            'UPDATE orders SET status = %s, delivery_date = %s WHERE id = %s',
+            (new_status, delivery_date, order_id)
+        )
+    conn.close()
+    flash(f'Order #{order_id} has been updated successfully!', 'success')
+    return redirect(url_for('admin_dashboard'))
 
 @app.route('/admin/logout')
 def admin_logout():
