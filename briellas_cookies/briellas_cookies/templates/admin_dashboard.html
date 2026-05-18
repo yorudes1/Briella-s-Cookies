@@ -9,10 +9,13 @@
   .header h1 { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: #261206; }
   .btn-logout { background: #8c2f1e; color: #fff; padding: 10px 20px; border-radius: 4px; text-decoration: none; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
   
-  .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 40px; }
-  .stat-card { background: #fff; border: 1px solid #e6dfd5; border-radius: 6px; padding: 24px; box-shadow: 0 4px 12px rgba(59,31,14,0.02); }
-  .stat-card h3 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: #8c7667; margin-bottom: 12px; }
-  .stat-card .val { font-size: 2rem; font-family: 'Playfair Display', serif; color: #261206; font-weight: 700; }
+  /* Upgraded Grid Cards */
+  .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 40px; }
+  .stat-card { background: #fff; border: 1px solid #e6dfd5; border-radius: 6px; padding: 24px; box-shadow: 0 4px 12px rgba(59,31,14,0.02); position: relative; overflow: hidden; }
+  .stat-card h3 { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: #8c7667; margin-bottom: 10px; font-weight: 600; }
+  .stat-card .val { font-size: 1.85rem; font-family: 'Playfair Display', serif; color: #261206; font-weight: 700; }
+  .stat-card .subtext { font-size: 0.8rem; color: #a67c52; margin-top: 6px; font-weight: 500; }
+  .card-highlight { border-top: 4px solid #a67c52; }
 
   .section-title { font-family: 'Playfair Display', serif; font-size: 1.75rem; color: #261206; margin: 40px 0 20px 0; }
   
@@ -20,13 +23,10 @@
   table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
   th { background: #f5efe6; color: #594132; font-weight: 600; padding: 16px; border-bottom: 1px solid #e6dfd5; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
   td { padding: 16px; border-bottom: 1px solid #f5efe6; color: #3b1f0e; vertical-align: middle; }
-  tr:last-child td { border-bottom: none; }
 
   .update-form { display: flex; gap: 8px; align-items: center; }
-  .select-status { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 4px; background-color: #fff; font-family: 'Jost', sans-serif; font-size: 0.85rem; color: #3b1f0e; outline: none; transition: border-color 0.2s; }
-  .select-status:focus { border-color: #a67c52; }
-  .input-date { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: 'Jost', sans-serif; font-size: 0.85rem; width: 180px; outline: none; transition: border-color 0.2s; }
-  .input-date:focus { border-color: #a67c52; }
+  .select-status { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 4px; background-color: #fff; font-family: 'Jost', sans-serif; font-size: 0.85rem; color: #3b1f0e; outline: none; }
+  .input-date { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: 'Jost', sans-serif; font-size: 0.85rem; width: 180px; outline: none; }
   .btn-save { background: #a67c52; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-family: 'Jost', sans-serif; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; transition: background 0.2s; }
   .btn-save:hover { background: #8c6239; }
 </style>
@@ -41,12 +41,24 @@
 
   <div class="grid-stats">
     <div class="stat-card">
-      <h3>Total Enrolled Customers</h3>
-      <div class="val">{{ customers|length }} Users</div>
+      <h3>Store Revenue</h3>
+      <div class="val">₱{{ "%.2f"|format(total_revenue) }}</div>
+      <div class="subtext">Gross sales earnings</div>
     </div>
     <div class="stat-card">
-      <h3>Active Order Queue</h3>
-      <div class="val">{{ recent_orders|length }} Orders</div>
+      <h3>Cookies Baked</h3>
+      <div class="val">{{ total_cookies_sold }} Pcs</div>
+      <div class="subtext">Total cookies purchased</div>
+    </div>
+    <div class="stat-card card-highlight">
+      <h3>🔥 Top Cookie Sale</h3>
+      <div class="val" style="font-size: 1.5rem; line-height: 1.2; margin-top: 4px;">{{ best_cookie_name }}</div>
+      <div class="subtext">Highest total sale value: {{ best_cookie_sales }} items sold</div>
+    </div>
+    <div class="stat-card">
+      <h3>Registered Accounts</h3>
+      <div class="val">{{ customers|length }} Customers</div>
+      <div class="subtext">Active customer database</div>
     </div>
   </div>
 
@@ -85,9 +97,7 @@
                 <option value="Delivered" {% if order.status == 'Delivered' %}selected{% endif %}>Delivered</option>
                 <option value="Cancelled" {% if order.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
               </select>
-              
               <input type="text" name="delivery_date" class="input-date" value="{{ order.delivery_date }}" placeholder="e.g., Tomorrow, 3:00 PM">
-              
               <button type="submit" class="btn-save">Save</button>
             </form>
           </td>
