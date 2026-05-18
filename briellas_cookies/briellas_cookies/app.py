@@ -1,85 +1,105 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
-import sqlite3, os, json
+import os
+import json
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
+import pymysql
+from pymysql.cursors import DictCursor
 
 app = Flask(__name__)
-app.secret_key = 'briellas_secret_key_2024'
+# Render will look for an environment variable SECRET_KEY, otherwise defaults safely
+app.secret_key = os.environ.get('SECRET_KEY', 'briellas_secret_key_2024')
 
-DB = 'briellas.db'
+# ── AIVEN MYSQL CREDENTIALS ──────────────────────────────────────────────────
+# Using environment variables is best practice on Render, falling back directly to your provided details
+DB_HOST = os.environ.get('DB_HOST', 'mysql-2d3a799-eac-0c42.e.aivencloud.com')
+DB_PORT = int(os.environ.get('DB_PORT', 17968))
+DB_USER = os.environ.get('DB_USER', 'avnadmin')
+DB_PASS = os.environ.get('DB_PASS', 'AVNS_tZiyrWIXCkvcWL6bUj_')
+DB_NAME = os.environ.get('DB_NAME', 'defaultdb')
 
 def get_db():
-    conn = sqlite3.connect(DB)
-    conn.row_factory = sqlite3.Row
-    return conn
+    """Establishes a secure connection to your Aiven MySQL cluster."""
+    return pymysql.connect(
+        host=DB_HOST,
+        port=DB_PORT,
+        user=DB_USER,
+        password=DB_PASS,
+        database=DB_NAME,
+        ssl={'ssl': {}},  # Enforces REQUIRED SSL encryption mode for Aiven connections
+        cursorclass=DictCursor,  # Makes rows act like dictionaries to match your HTML syntax
+        autocommit=True
+    )
 
 def init_db():
+    """Generates production tables inside MySQL if they do not exist."""
     conn = get_db()
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS customers (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        email TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
-        contact TEXT NOT NULL,
-        address TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )''')
-    c.execute('''CREATE TABLE IF NOT EXISTS orders (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        customer_id INTEGER NOT NULL,
-        cookie_type TEXT NOT NULL,
-        quantity INTEGER NOT NULL,
-        total_price REAL NOT NULL,
-        status TEXT DEFAULT 'Pending',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY(customer_id) REFERENCES customers(id)
-    )''')
-    conn.commit()
+    with conn.cursor() as cursor:
+        cursor.execute('''CREATE TABLE IF NOT EXISTS customers (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(255) NOT NULL,
+            email VARCHAR(255) UNIQUE NOT NULL,
+            password VARCHAR(255) NOT NULL,
+            contact VARCHAR(100) NOT NULL,
+            address TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )''')
+        cursor.execute('''CREATE TABLE IF NOT EXISTS orders (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            customer_id INT NOT NULL,
+            cookie_type VARCHAR(100) NOT NULL,
+            quantity INT NOT NULL,
+            total_price DECIMAL(10,2) NOT NULL,
+            status VARCHAR(50) DEFAULT 'Pending',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )''')
     conn.close()
 
+# Initialize tables immediately upon application startup
 init_db()
 
 COOKIES = {
     'smores': {
         'name': "S'mores Cookie",
         'price': 75,
-        'desc': "A soft and chewy cookie inspired by the classic campfire treat. Made with rich chocolate, crushed graham crackers, and gooey marshmallows baked into every bite, this cookie delivers the perfect balance of sweetness and texture. Crispy on the edges and soft in the center, the S'mores Cookie is a comforting dessert that brings a warm, homemade flavor everyone will enjoy.",
+        'desc': "A soft and chewy cookie inspired by the classic campfire treat. Made with rich chocolate, crushed graham crackers, and gooey marshmallows baked into every bite, this cookie delivers the perfect balance of sweetness and texture.",
         'emoji': '🔥',
         'tags': ['Bestseller', 'Fan Favorite']
     },
     'chocolate': {
         'name': 'Chocolate Cookie',
         'price': 65,
-        'desc': 'A classic chocolate cookie baked to perfection with a soft, chewy center and rich chocolate flavor in every bite. Made with premium cocoa and loaded with chocolate chips, this cookie offers a deliciously sweet and satisfying treat. Perfect for dessert, snacks, or pairing with milk or coffee.',
+        'desc': 'A classic chocolate cookie baked to perfection with a soft, chewy center and rich chocolate flavor in every bite. Made with premium cocoa and loaded with chocolate chips.',
         'emoji': '🍫',
         'tags': ['Classic', 'All-Time Fave']
     }
 }
 
-# ── Routes ──────────────────────────────────────────────────────────────────
+# ── Customer Routes ──────────────────────────────────────────────────────────
 
 @app.route('/')
 def index():
     return redirect(url_for('login'))
 
-# Customer login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form['email'].strip()
         password = request.form['password']
+        
         conn = get_db()
-        user = conn.execute('SELECT * FROM customers WHERE email=?', (email,)).fetchone()
+        with conn.cursor() as cursor:
+            cursor.execute('SELECT * FROM customers WHERE email = %s', (email,))
+            user = cursor.fetchone()
         conn.close()
+        
         if user and check_password_hash(user['password'], password):
             session['user_id'] = user['id']
             session['user_name'] = user['name']
             return redirect(url_for('shop'))
         flash('Invalid email or password.', 'error')
-    return render_template('login.html')
+    return render_template('admin_login.html')  # Connects directly to unified user sign-in screen
 
-# Customer register
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -89,56 +109,74 @@ def register():
         contact = request.form['contact'].strip()
         address = request.form['address'].strip()
         hashed = generate_password_hash(password)
+        
+        conn = get_db()
         try:
-            conn = get_db()
-            conn.execute('INSERT INTO customers (name,email,password,contact,address) VALUES (?,?,?,?,?)',
-                         (name, email, hashed, contact, address))
-            conn.commit()
-            conn.close()
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    'INSERT INTO customers (name, email, password, contact, address) VALUES (%s, %s, %s, %s, %s)',
+                    (name, email, hashed, contact, address)
+                )
             flash('Account created! Please log in.', 'success')
             return redirect(url_for('login'))
-        except sqlite3.IntegrityError:
+        except pymysql.err.IntegrityError:
             flash('Email already registered.', 'error')
+        finally:
+            conn.close()
     return render_template('register.html')
 
-# Customer shop
 @app.route('/shop')
 def shop():
     if 'user_id' not in session:
         return redirect(url_for('login'))
+        
     conn = get_db()
-    orders = conn.execute(
-        'SELECT * FROM orders WHERE customer_id=? ORDER BY created_at DESC LIMIT 5',
-        (session['user_id'],)).fetchall()
+    with conn.cursor() as cursor:
+        cursor.execute(
+            'SELECT * FROM orders WHERE customer_id = %s ORDER BY created_at DESC LIMIT 5',
+            (session['user_id'],)
+        )
+        orders = cursor.fetchall()
+        
+        # Format datetimes down to standard readable strings for HTML compatibility matching [:16] slicing
+        for order in orders:
+            if 'created_at' in order and isinstance(order['created_at'], datetime):
+                order['created_at'] = order['created_at'].strftime('%Y-%m-%d %H:%M:%S')
+                
     conn.close()
     return render_template('shop.html', cookies=COOKIES, orders=orders)
 
-# Place order
 @app.route('/order', methods=['POST'])
 def order():
     if 'user_id' not in session:
         return redirect(url_for('login'))
+        
     cookie_type = request.form['cookie_type']
     quantity = int(request.form['quantity'])
+    
     if cookie_type not in COOKIES or quantity < 1:
         flash('Invalid order.', 'error')
         return redirect(url_for('shop'))
+        
     price = COOKIES[cookie_type]['price'] * quantity
+    
     conn = get_db()
-    conn.execute('INSERT INTO orders (customer_id,cookie_type,quantity,total_price) VALUES (?,?,?,?)',
-                 (session['user_id'], cookie_type, quantity, price))
-    conn.commit()
+    with conn.cursor() as cursor:
+        cursor.execute(
+            'INSERT INTO orders (customer_id, cookie_type, quantity, total_price) VALUES (%s, %s, %s, %s)',
+            (session['user_id'], cookie_type, quantity, price)
+        )
     conn.close()
+    
     flash(f'Order placed! {quantity}x {COOKIES[cookie_type]["name"]} — ₱{price:.0f}', 'success')
     return redirect(url_for('shop'))
 
-# Customer logout
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('login'))
 
-# ── Admin ────────────────────────────────────────────────────────────────────
+# ── Admin Routes ─────────────────────────────────────────────────────────────
 
 ADMIN_USER = 'AdminBriella'
 ADMIN_PASS = '12345'
@@ -158,31 +196,51 @@ def admin_dashboard():
         return redirect(url_for('admin_login'))
 
     conn = get_db()
+    with conn.cursor() as cursor:
+        # Customers List Mapping
+        cursor.execute('''
+            SELECT c.id, c.name, c.email, c.contact, c.address, c.created_at, COUNT(o.id) as order_count 
+            FROM customers c LEFT JOIN orders o ON c.id = o.customer_id 
+            GROUP BY c.id, c.name, c.email, c.contact, c.address, c.created_at 
+            ORDER BY c.created_at DESC
+        ''')
+        customers = cursor.fetchall()
+        for c in customers:
+            if isinstance(c['created_at'], datetime):
+                c['created_at'] = c['created_at'].strftime('%Y-%m-%d %H:%M:%S')
 
-    # Customers
-    customers = conn.execute(
-        'SELECT c.*, COUNT(o.id) as order_count FROM customers c LEFT JOIN orders o ON c.id=o.customer_id GROUP BY c.id ORDER BY c.created_at DESC'
-    ).fetchall()
+        # Weekly sales analytics (last 7 days)
+        week_ago = (datetime.now() - timedelta(days=7))
+        cursor.execute(
+            "SELECT cookie_type, SUM(quantity) as total_qty, SUM(total_price) as total_rev FROM orders WHERE created_at >= %s GROUP BY cookie_type",
+            (week_ago,)
+        )
+        weekly = cursor.fetchall()
 
-    # Weekly sales (last 7 days)
-    week_ago = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
-    weekly = conn.execute(
-        "SELECT cookie_type, SUM(quantity) as total_qty, SUM(total_price) as total_rev FROM orders WHERE created_at >= ? GROUP BY cookie_type",
-        (week_ago,)).fetchall()
+        # Recent transactions view listing
+        cursor.execute('''
+            SELECT o.*, c.name, c.contact, c.address, c.email 
+            FROM orders o JOIN customers c ON o.customer_id = c.id 
+            ORDER BY o.created_at DESC LIMIT 20
+        ''')
+        recent_orders = cursor.fetchall()
+        for ro in recent_orders:
+            if isinstance(ro['created_at'], datetime):
+                ro['created_at'] = ro['created_at'].strftime('%Y-%m-%d %H:%M:%S')
 
-    # Recent orders with customer info
-    recent_orders = conn.execute(
-        'SELECT o.*, c.name, c.contact, c.address, c.email FROM orders o JOIN customers c ON o.customer_id=c.id ORDER BY o.created_at DESC LIMIT 20'
-    ).fetchall()
-
-    # Daily sales for the past 7 days
-    daily_sales = []
-    for i in range(6, -1, -1):
-        day = (datetime.now() - timedelta(days=i)).strftime('%Y-%m-%d')
-        row = conn.execute(
-            "SELECT SUM(quantity) as qty FROM orders WHERE DATE(created_at)=?", (day,)
-        ).fetchone()
-        daily_sales.append({'date': day, 'qty': row['qty'] or 0})
+        # Daily sales compilation parsing for Chart.js rendering logs
+        daily_sales = []
+        for i in range(6, -1, -1):
+            day_start = (datetime.now() - timedelta(days=i)).replace(hour=0, minute=0, second=0, microsecond=0)
+            day_end = day_start + timedelta(days=1)
+            
+            cursor.execute(
+                "SELECT SUM(quantity) as qty FROM orders WHERE created_at >= %s AND created_at < %s",
+                (day_start, day_end)
+            )
+            row = cursor.fetchone()
+            qty_val = int(row['qty']) if row and row['qty'] is not None else 0
+            daily_sales.append({'date': day_start.strftime('%Y-%m-%d'), 'qty': qty_val})
 
     conn.close()
     return render_template('admin_dashboard.html',
@@ -198,4 +256,6 @@ def admin_logout():
     return redirect(url_for('admin_login'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Dynamically binds port variable configurations matching Render hosting expectations
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
