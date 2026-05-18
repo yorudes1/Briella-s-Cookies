@@ -7,11 +7,9 @@ import pymysql
 from pymysql.cursors import DictCursor
 
 app = Flask(__name__)
-# Render will look for an environment variable SECRET_KEY, otherwise defaults safely
 app.secret_key = os.environ.get('SECRET_KEY', 'briellas_secret_key_2024')
 
 # ── AIVEN MYSQL CREDENTIALS ──────────────────────────────────────────────────
-# Using environment variables is best practice on Render, falling back directly to your provided details
 DB_HOST = os.environ.get('DB_HOST', 'mysql-2d3a799-eac-0c42.e.aivencloud.com')
 DB_PORT = int(os.environ.get('DB_PORT', 17968))
 DB_USER = os.environ.get('DB_USER', 'avnadmin')
@@ -27,7 +25,7 @@ def get_db():
         password=DB_PASS,
         database=DB_NAME,
         ssl={'ssl': {}},  # Enforces REQUIRED SSL encryption mode for Aiven connections
-        cursorclass=DictCursor,  # Makes rows act like dictionaries to match your HTML syntax
+        cursorclass=DictCursor,  # Makes rows act like dictionaries to match HTML syntax
         autocommit=True
     )
 
@@ -55,21 +53,21 @@ def init_db():
         )''')
     conn.close()
 
-# Initialize tables immediately upon application startup
+# Initialize database tables on start
 init_db()
 
 COOKIES = {
     'smores': {
         'name': "S'mores Cookie",
         'price': 75,
-        'desc': "A soft and chewy cookie inspired by the classic campfire treat. Made with rich chocolate, crushed graham crackers, and gooey marshmallows baked into every bite, this cookie delivers the perfect balance of sweetness and texture.",
+        'desc': "A soft and chewy cookie inspired by the classic campfire treat. Made with rich chocolate, crushed graham crackers, and gooey marshmallows baked into every bite.",
         'emoji': '🔥',
         'tags': ['Bestseller', 'Fan Favorite']
     },
     'chocolate': {
         'name': 'Chocolate Cookie',
         'price': 65,
-        'desc': 'A classic chocolate cookie baked to perfection with a soft, chewy center and rich chocolate flavor in every bite. Made with premium cocoa and loaded with chocolate chips.',
+        'desc': 'A classic chocolate cookie baked to perfection with a soft, chewy center and rich chocolate flavor in every bite.',
         'emoji': '🍫',
         'tags': ['Classic', 'All-Time Fave']
     }
@@ -84,6 +82,11 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
+        # Safely checks for fields to prevent 400 Bad Request errors
+        if 'email' not in request.form or 'password' not in request.form:
+            flash('Invalid form submission.', 'error')
+            return redirect(url_for('login'))
+
         email = request.form['email'].strip()
         password = request.form['password']
         
@@ -98,7 +101,9 @@ def login():
             session['user_name'] = user['name']
             return redirect(url_for('shop'))
         flash('Invalid email or password.', 'error')
-    return render_template('admin_login.html')  # Connects directly to unified user sign-in screen
+    
+    # FIX: Render your actual customer login interface, not the admin_login template
+    return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -138,7 +143,6 @@ def shop():
         )
         orders = cursor.fetchall()
         
-        # Format datetimes down to standard readable strings for HTML compatibility matching [:16] slicing
         for order in orders:
             if 'created_at' in order and isinstance(order['created_at'], datetime):
                 order['created_at'] = order['created_at'].strftime('%Y-%m-%d %H:%M:%S')
@@ -184,6 +188,10 @@ ADMIN_PASS = '12345'
 @app.route('/admin', methods=['GET', 'POST'])
 def admin_login():
     if request.method == 'POST':
+        if 'username' not in request.form or 'password' not in request.form:
+            flash('Invalid admin form submission.', 'error')
+            return redirect(url_for('admin_login'))
+
         if request.form['username'] == ADMIN_USER and request.form['password'] == ADMIN_PASS:
             session['admin'] = True
             return redirect(url_for('admin_dashboard'))
@@ -197,7 +205,7 @@ def admin_dashboard():
 
     conn = get_db()
     with conn.cursor() as cursor:
-        # Customers List Mapping
+        # Customers Mapping
         cursor.execute('''
             SELECT c.id, c.name, c.email, c.contact, c.address, c.created_at, COUNT(o.id) as order_count 
             FROM customers c LEFT JOIN orders o ON c.id = o.customer_id 
@@ -209,7 +217,7 @@ def admin_dashboard():
             if isinstance(c['created_at'], datetime):
                 c['created_at'] = c['created_at'].strftime('%Y-%m-%d %H:%M:%S')
 
-        # Weekly sales analytics (last 7 days)
+        # Weekly sales (last 7 days)
         week_ago = (datetime.now() - timedelta(days=7))
         cursor.execute(
             "SELECT cookie_type, SUM(quantity) as total_qty, SUM(total_price) as total_rev FROM orders WHERE created_at >= %s GROUP BY cookie_type",
@@ -217,7 +225,7 @@ def admin_dashboard():
         )
         weekly = cursor.fetchall()
 
-        # Recent transactions view listing
+        # Recent transactions listing
         cursor.execute('''
             SELECT o.*, c.name, c.contact, c.address, c.email 
             FROM orders o JOIN customers c ON o.customer_id = c.id 
@@ -228,7 +236,7 @@ def admin_dashboard():
             if isinstance(ro['created_at'], datetime):
                 ro['created_at'] = ro['created_at'].strftime('%Y-%m-%d %H:%M:%S')
 
-        # Daily sales compilation parsing for Chart.js rendering logs
+        # Daily sales compilation parsing for charts
         daily_sales = []
         for i in range(6, -1, -1):
             day_start = (datetime.now() - timedelta(days=i)).replace(hour=0, minute=0, second=0, microsecond=0)
@@ -256,6 +264,5 @@ def admin_logout():
     return redirect(url_for('admin_login'))
 
 if __name__ == '__main__':
-    # Dynamically binds port variable configurations matching Render hosting expectations
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
