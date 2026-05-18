@@ -1,2 +1,5 @@
-flask
-werkzeug
+Flask==3.0.2
+Werkzeug==3.0.1
+PyMySQL==1.1.0
+cryptography==42.0.5
+gunicorn==21.2.0
