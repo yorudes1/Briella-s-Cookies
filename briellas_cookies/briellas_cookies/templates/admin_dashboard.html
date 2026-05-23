@@ -7,70 +7,62 @@
   body { background: #faf7f2; color: #3b1f0e; font-family: 'Jost', sans-serif; }
   .dashboard-container { padding: 40px; max-width: 1400px; margin: 0 auto; }
   
-  /* --- Header Style --- */
-  .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-  .top-nav h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #261206; margin: 0; }
+  /* --- Header & Horizontal Line --- */
+  .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+  .top-nav h1 { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: #261206; margin: 0; }
   .top-nav h1 span { font-weight: 300; font-style: italic; }
   .admin-status { font-size: 0.9rem; color: #8c7667; }
-  .btn-logout { color: #8c2f1e; text-decoration: none; font-weight: 700; margin-left: 10px; text-transform: uppercase; border-bottom: 1px solid transparent; }
-  .btn-logout:hover { border-bottom: 1px solid #8c2f1e; }
+  .btn-logout { color: #8c2f1e; text-decoration: none; font-weight: 700; margin-left: 10px; text-transform: uppercase; letter-spacing: 1px; }
   
-  .page-title { font-family: 'Playfair Display', serif; font-size: 3rem; margin-bottom: 40px; color: #261206; }
+  hr.header-line { border: 0; height: 1px; background-image: linear-gradient(to right, transparent, #e6dfd5, transparent); margin-bottom: 40px; }
 
-  .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 40px; }
-  .stat-card { background: #fff; border: 1px solid #e6dfd5; border-radius: 6px; padding: 24px; box-shadow: 0 4px 12px rgba(59,31,14,0.02); }
-  .stat-card h3 { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: #8c7667; margin-bottom: 10px; }
-  .stat-card .val { font-size: 1.85rem; font-family: 'Playfair Display', serif; color: #261206; font-weight: 700; }
-  
-  .section-header { margin: 60px 0 20px; }
-  .section-header h2 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #261206; margin-bottom: 5px; }
-  .section-header p { color: #8c7667; font-size: 1rem; margin: 0; }
-
-  /* Forms & Inputs */
-  .admin-panel-card { background: #fff; border: 1px solid #e6dfd5; border-radius: 8px; padding: 30px; margin-bottom: 40px; }
-  .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
-  input, select { padding: 12px; border: 1px solid #e6dfd5; border-radius: 4px; font-family: 'Jost'; }
-  
-  .btn-action { background: #3b1f0e; color: #fff; border: none; padding: 12px 24px; border-radius: 4px; cursor: pointer; font-weight: 600; text-transform: uppercase; transition: 0.3s; }
-  .btn-action:hover { background: #594132; }
-  .btn-delete { background: #fff; color: #8c2f1e; border: 1px solid #fee2e2; padding: 8px; border-radius: 4px; cursor: pointer; }
-  .btn-delete:hover { background: #fee2e2; }
-
-  /* --- REVISED CHART STYLES --- */
-  .reports-grid { 
-    display: grid; 
-    grid-template-columns: 1fr 2fr; 
-    gap: 24px; 
-    margin-bottom: 40px; 
-    align-items: start; /* Prevents vertical stretching */
+  /* --- Cute & Minimalist Stat Cards --- */
+  .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 25px; margin-bottom: 50px; }
+  .stat-card { 
+    background: #fff; 
+    border: 1px solid #f2ece4; 
+    border-radius: 15px; /* Softer corners for the "cute" look */
+    padding: 30px; 
+    text-align: center;
+    transition: transform 0.2s ease;
+    box-shadow: 0 10px 20px rgba(59,31,14,0.03);
   }
+  .stat-card:hover { transform: translateY(-5px); }
+  .stat-card h3 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.15em; color: #a68b7c; margin-bottom: 12px; }
+  .stat-card .val { font-size: 2.2rem; font-family: 'Playfair Display', serif; color: #3b1f0e; font-weight: 700; }
+
+  /* --- Section Headers --- */
+  .section-header { margin: 60px 0 25px; }
+  .section-header h2 { font-family: 'Playfair Display', serif; font-size: 2.4rem; color: #261206; margin-bottom: 8px; }
+  .section-header p { color: #8c7667; font-size: 1.05rem; font-style: italic; margin: 0; }
+
+  /* --- Forms --- */
+  .admin-panel-card { background: #fff; border: 1px solid #e6dfd5; border-radius: 12px; padding: 35px; margin-bottom: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 15px; align-items: center; }
+  input, select { padding: 14px; border: 1px solid #efe9e1; border-radius: 8px; font-family: 'Jost'; background: #fdfcfb; width: 100%; box-sizing: border-box; }
+  .btn-action { background: #3b1f0e; color: #fff; border: none; padding: 14px 28px; border-radius: 8px; cursor: pointer; font-weight: 600; text-transform: uppercase; font-size: 0.85rem; }
+
+  /* --- Fixed Sales Report Charts --- */
+  .reports-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 30px; margin-bottom: 50px; align-items: stretch; }
   .chart-card { 
     background: #fff; 
     border: 1px solid #e6dfd5; 
-    border-radius: 8px; 
-    padding: 24px; 
-    height: 350px; /* Locked height for uniformity */
+    border-radius: 12px; 
+    padding: 25px; 
+    min-height: 400px; /* Ensures space for the charts */
     display: flex;
     flex-direction: column;
   }
-  .chart-card h4 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    font-family: 'Playfair Display', serif;
-    color: #261206;
-  }
-  /* Fix for Chart.js container */
-  .chart-container {
-    flex-grow: 1;
-    position: relative;
-    width: 100%;
-  }
+  .chart-wrapper { position: relative; flex-grow: 1; width: 100%; height: 300px; }
 
-  /* Tables */
-  .table-wrapper { background: #fff; border: 1px solid #e6dfd5; border-radius: 6px; overflow: hidden; }
-  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-  th { background: #f5efe6; padding: 15px; text-align: left; }
-  td { padding: 15px; border-bottom: 1px solid #f5efe6; }
+  /* --- Tables & Comments --- */
+  .table-wrapper { background: #fff; border: 1px solid #e6dfd5; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+  table { width: 100%; border-collapse: collapse; }
+  th { background: #f9f6f2; padding: 18px; text-align: left; color: #8c7667; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; }
+  td { padding: 18px; border-bottom: 1px solid #f9f6f2; vertical-align: middle; }
+  
+  .btn-delete-small { background: #fff; color: #d1d1d1; border: 1px solid #eee; padding: 6px 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+  .btn-delete-small:hover { color: #8c2f1e; border-color: #fee2e2; background: #fff5f5; }
 </style>
 {% endblock %}
 
@@ -79,22 +71,34 @@
   <div class="top-nav">
     <h1>Briella's <span>Cookies</span></h1>
     <div class="admin-status">
-      Hello, Admin! | <a href="{{ url_for('admin_logout') }}" class="btn-logout">Log Out</a>
+      Logged in as Admin | <a href="{{ url_for('admin_logout') }}" class="btn-logout">Log Out</a>
+    </div>
+  </div>
+  
+  <hr class="header-line">
+
+  <div class="grid-stats">
+    <div class="stat-card">
+      <h3>Store Revenue</h3>
+      <div class="val">₱{{ "%.2f"|format(total_revenue) }}</div>
+    </div>
+    <div class="stat-card">
+      <h3>Cookies Baked</h3>
+      <div class="val">{{ total_cookies_sold }} Pcs</div>
+    </div>
+    <div class="stat-card">
+      <h3>Top Seller</h3>
+      <div class="val">{{ best_cookie_name }}</div>
+    </div>
+    <div class="stat-card">
+      <h3>Customers</h3>
+      <div class="val">{{ customers|length }}</div>
     </div>
   </div>
 
-  <h1 class="page-title">Dashboard</h1>
-
-  <div class="grid-stats">
-    <div class="stat-card"><h3>Store Revenue</h3><div class="val">₱{{ "%.2f"|format(total_revenue) }}</div></div>
-    <div class="stat-card"><h3>Cookies Baked</h3><div class="val">{{ total_cookies_sold }} Pcs</div></div>
-    <div class="stat-card"><h3>Top Seller</h3><div class="val">{{ best_cookie_name }}</div></div>
-    <div class="stat-card"><h3>Customers</h3><div class="val">{{ customers|length }}</div></div>
-  </div>
-
   <div class="section-header">
-    <h2>Product Management</h2>
-    <p>Add new flavors to your storefront menu</p>
+    <h2>Manage Products</h2>
+    <p>Add fresh items to your store and keep your bakery lineup exciting and full.</p>
   </div>
   <div class="admin-panel-card">
     <form action="{{ url_for('add_product') }}" method="POST">
@@ -111,17 +115,16 @@
     <h2>Sales Report</h2>
     <p>Overview of your store’s sales performance</p>
   </div>
-  
   <div class="reports-grid">
     <div class="chart-card">
-      <h4>Top Selling Cookies</h4>
-      <div class="chart-container">
+      <h3>Top Selling Cookies</h3>
+      <div class="chart-wrapper">
         <canvas id="productPieChart"></canvas>
       </div>
     </div>
     <div class="chart-card">
-      <h4>Weekly Orders</h4>
-      <div class="chart-container">
+      <h3>Weekly Orders</h3>
+      <div class="chart-wrapper">
         <canvas id="trendsLineChart"></canvas>
       </div>
     </div>
@@ -139,30 +142,30 @@
           <th>Customer</th>
           <th>Product</th>
           <th>Total</th>
-          <th>Status & Projection</th>
-          <th>Actions</th>
+          <th>Status</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody>
         {% for order in recent_orders %}
         <tr>
           <td>#{{ order.id }}</td>
-          <td><strong>{{ order.name }}</strong><br>{{ order.contact }}</td>
+          <td><strong>{{ order.name }}</strong><br><small>{{ order.contact }}</small></td>
           <td>{{ order.quantity }}x {{ order.cookie_type }}</td>
           <td>₱{{ order.total_price }}</td>
           <td>
-            <form method="POST" action="{{ url_for('update_order', order_id=order.id) }}" style="display:flex; gap:5px;">
-              <select name="status">
+            <form method="POST" action="{{ url_for('update_order', order_id=order.id) }}" style="display:flex; gap:8px;">
+              <select name="status" style="padding: 5px; font-size: 0.8rem;">
                 <option value="Pending" {% if order.status == 'Pending' %}selected{% endif %}>Pending</option>
                 <option value="Delivered" {% if order.status == 'Delivered' %}selected{% endif %}>Delivered</option>
               </select>
-              <button type="submit" class="btn-save">Save</button>
+              <button type="submit" class="btn-action" style="padding: 5px 12px; font-size: 0.7rem;">Update</button>
             </form>
           </td>
           <td>
-            <form action="{{ url_for('admin_delete_order', order_id=order.id) }}" method="POST" onsubmit="return confirm('Delete this order forever?')">
-              <button type="submit" class="btn-delete">🗑️</button>
-            </form>
+             <form action="{{ url_for('admin_delete_order', order_id=order.id) }}" method="POST">
+               <button type="submit" class="btn-delete-small">🗑️</button>
+             </form>
           </td>
         </tr>
         {% endfor %}
@@ -171,24 +174,30 @@
   </div>
 
   <div class="section-header">
-    <h2>Customer Messages & Comments</h2>
-    <p>Recent feedback from your website visitors</p>
+    <h2>Customer Feedback</h2>
+    <p>Recent messages from your cookie lovers</p>
   </div>
   <div class="table-wrapper">
     <table>
       <thead>
         <tr>
-          <th>Date</th>
           <th>Customer</th>
           <th>Message</th>
+          <th style="width: 50px;">Action</th>
         </tr>
       </thead>
       <tbody>
+        {% for comment in customer_comments %}
         <tr>
-          <td>May 23, 2026</td>
-          <td><strong>Hana Leyva</strong></td>
-          <td>"The S'mores cookies were absolutely amazing! Will order again."</td>
+          <td><strong>{{ comment.user_name }}</strong></td>
+          <td>"{{ comment.text }}"</td>
+          <td>
+            <form action="{{ url_for('delete_comment', comment_id=comment.id) }}" method="POST">
+              <button type="submit" class="btn-delete-small">🗑️</button>
+            </form>
+          </td>
         </tr>
+        {% endfor %}
       </tbody>
     </table>
   </div>
@@ -196,5 +205,49 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+  // Ensure charts load after DOM
+  document.addEventListener('DOMContentLoaded', function() {
+    
+    // PIE CHART
+    const ctxPie = document.getElementById('productPieChart').getContext('2d');
+    new Chart(ctxPie, {
+      type: 'pie',
+      data: {
+        labels: ['S\'mores', 'Chocolate', 'Oatmeal', 'Red Velvet'],
+        datasets: [{
+          data: [15, 10, 5, 2],
+          backgroundColor: ['#3b1f0e', '#8c7667', '#d9c5b2', '#f2ece4'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } }
+      }
+    });
+
+    // LINE CHART
+    const ctxLine = document.getElementById('trendsLineChart').getContext('2d');
+    new Chart(ctxLine, {
+      type: 'line',
+      data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{
+          label: 'Orders',
+          data: [12, 19, 3, 5, 2, 20, 32],
+          borderColor: '#3b1f0e',
+          tension: 0.4,
+          fill: true,
+          backgroundColor: 'rgba(59, 31, 14, 0.05)'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } }
+      }
+    });
+  });
 </script>
 {% endblock %}
