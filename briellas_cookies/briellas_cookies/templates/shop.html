@@ -46,7 +46,7 @@
     50% { transform: translateY(-30px) rotate(8deg); }
   }
 
-  /* --- NEW: Search & Filter Styles --- */
+  /* --- Search & Filter Styles --- */
   .shop-controls {
     max-width: 1200px;
     margin: 0 auto 40px;
@@ -101,12 +101,28 @@
   .qty-input { width: 60px; padding: 10px; border: 1px solid #e6dfd5; border-radius: 4px; }
   .btn-order { flex: 1; background: #3b1f0e; color: #fff; border: none; padding: 12px; border-radius: 4px; cursor: pointer; font-weight: 600; text-transform: uppercase; }
 
-  /* --- History & Feedback (Kept original styles) --- */
+  /* --- History & Feedback --- */
   .history-header { margin-bottom: 30px; border-top: 1px solid #e6dfd5; padding-top: 40px; }
   .history-header h2 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #261206; }
   .history-card { background: #fff; border: 1px solid #e6dfd5; padding: 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
   .badge { padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; }
   .status-pending { background: #fef3c7; color: #92400e; }
+  
+  /* NEW: Delete Button Styling */
+  .btn-delete-order {
+    background: #fcecea;
+    color: #8c2f1e;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-weight: bold;
+    margin-left: 15px;
+    transition: 0.2s;
+  }
+  .btn-delete-order:hover { background: #8c2f1e; color: white; }
+
   .feedback-section { margin-top: 60px; padding: 40px; background: #fff; border-radius: 12px; border: 1px solid #e6dfd5; }
   .feedback-textarea { width: 100%; padding: 15px; border: 1px solid #e6dfd5; border-radius: 8px; font-family: 'Jost'; margin-top: 15px; resize: vertical; }
   .btn-submit-feedback { background: #3b1f0e; color: #fff; border: none; padding: 12px 30px; border-radius: 6px; cursor: pointer; font-weight: 600; margin-top: 15px; }
@@ -135,6 +151,7 @@
   </div>
 </section>
 
+{% if cookies %}
 <div class="shop-intro">
   <p>Take a bite of something homemade, warm, and freshly baked.</p>
   <span class="shop-now-tag">Shop Our Flavors &darr;</span>
@@ -171,7 +188,9 @@
     </div>
     {% endfor %}
   </div>
+{% endif %}
 
+  {% if orders %}
   <div class="history-header">
     <h2>Order History</h2>
   </div>
@@ -183,12 +202,17 @@
         <h4 style="margin:0 0 5px 0;">{{ cookies[order.cookie_type]['name'] if order.cookie_type in cookies else order.cookie_type }} (x{{ order.quantity }})</h4>
         <p style="margin:0; font-size: 0.85rem; color: #8c7667;">Total: ₱{{ "%.2f"|format(order.total_price) }}</p>
       </div>
-      <div class="status-block">
+      <div class="status-block" style="display: flex; align-items: center;">
         <span class="badge status-pending">{{ order.status }}</span>
+        
+        <form action="{{ url_for('delete_order', order_id=loop.index0) }}" method="POST" style="margin:0;">
+          <button type="submit" class="btn-delete-order" title="Delete Order">×</button>
+        </form>
       </div>
     </div>
     {% endfor %}
   </div>
+  {% endif %}
 
   <section class="feedback-section">
     <h2>Leave a Comment</h2>
@@ -205,23 +229,19 @@
   const cards = document.querySelectorAll('.cookie-card');
 
   function filterProducts() {
-    const searchText = searchBar.value.toLowerCase();
-    const selectedCat = categoryFilter.value.toLowerCase();
+    const searchText = searchBar ? searchBar.value.toLowerCase() : '';
+    const selectedCat = categoryFilter ? categoryFilter.value.toLowerCase() : 'all';
 
     cards.forEach(card => {
       const name = card.getAttribute('data-name');
       const matchesSearch = name.includes(searchText);
       const matchesCategory = (selectedCat === 'all' || name === selectedCat);
 
-      if (matchesSearch && matchesCategory) {
-        card.style.display = 'block';
-      } else {
-        card.style.display = 'none';
-      }
+      card.style.display = (matchesSearch && matchesCategory) ? 'block' : 'none';
     });
   }
 
-  searchBar.addEventListener('input', filterProducts);
-  categoryFilter.addEventListener('change', filterProducts);
+  if(searchBar) searchBar.addEventListener('input', filterProducts);
+  if(categoryFilter) categoryFilter.addEventListener('change', filterProducts);
 </script>
 {% endblock %}
