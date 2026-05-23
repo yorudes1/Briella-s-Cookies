@@ -194,7 +194,7 @@
     <input type="text" id="cookieSearch" class="search-input" placeholder="Search for your favorite cookie flavor...">
     
     <div class="product-dropdown-wrapper">
-      <button class="dropdown-btn" onclick="toggleDropdown()">🧺 ▼</button>
+      <button class="dropdown-btn" onclick="toggleDropdown()">🧺</button>
       <div id="productDropdown" class="dropdown-content">
         {% for id, cookie in cookies.items() %}
         <a onclick="scrollToCookie('cookie-{{ id }}')">{{ cookie.name }}</a>
@@ -225,7 +225,7 @@
 </div>
 
 <section class="feedback-section">
-  <h2>Leave us a comment to Tell us what you think!</h2>
+  <h2>Tell us what you think!</h2>
   <p class="feedback-subtitle">Your feedback matters. 🍪</p>
   <form action="{{ url_for('submit_feedback') }}" method="POST">
       <textarea name="message" rows="4" class="feedback-textarea" placeholder="Write your message here..." required></textarea>
