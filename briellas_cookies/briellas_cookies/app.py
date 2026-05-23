@@ -161,4 +161,186 @@ def order():
         return redirect(url_for('login'))
         
     cookie_type = request.form['cookie_type']
-    quantity = int
+    quantity = int(request.form['quantity'])
+    
+    if cookie_type not in COOKIES or quantity < 1:
+        flash('Invalid order.', 'error')
+        return redirect(url_for('shop'))
+        
+    price = COOKIES[cookie_type]['price'] * quantity
+    
+    conn = get_db()
+    with conn.cursor() as cursor:
+        cursor.execute(
+            'INSERT INTO orders (customer_id, cookie_type, quantity, total_price) VALUES (%s, %s, %s, %s)',
+            (session['user_id'], cookie_type, quantity, price)
+        )
+    conn.close()
+    
+    flash(f'Order placed! {quantity}x {COOKIES[cookie_type]["name"]}', 'success')
+    return redirect(url_for('shop'))
+
+@app.route('/delete_order/<int:order_id>', methods=['POST'])
+def delete_order(order_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    conn = get_db()
+    with conn.cursor() as cursor:
+        cursor.execute('DELETE FROM orders WHERE id = %s AND customer_id = %s', (order_id, session['user_id']))
+    conn.close()
+    flash('Order cancelled.', 'success')
+    return redirect(url_for('shop'))
+
+@app.route('/submit_feedback', methods=['POST'])
+def submit_feedback():
+    if 'user_name' not in session:
+        return redirect(url_for('login'))
+    
+    message = request.form.get('message', '').strip()
+    if message:
+        conn = get_db()
+        with conn.cursor() as cursor:
+            cursor.execute(
+                'INSERT INTO comments (customer_name, message) VALUES (%s, %s)',
+                (session['user_name'], message)
+            )
+        conn.close()
+        flash('Thank you for your sweet feedback!', 'success')
+    return redirect(url_for('shop'))
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
+
+# ── Admin Routes ─────────────────────────────────────────────────────────────
+
+ADMIN_USER = 'AdminBriella'
+ADMIN_PASS = '12345'
+
+@app.route('/admin', methods=['GET', 'POST'])
+def admin_login():
+    if request.method == 'POST':
+        if request.form['username'] == ADMIN_USER and request.form['password'] == ADMIN_PASS:
+            session['admin'] = True
+            return redirect(url_for('admin_dashboard'))
+        flash('Incorrect credentials.', 'error')
+    return render_template('admin_login.html')
+
+@app.route('/admin/dashboard')
+def admin_dashboard():
+    if not session.get('admin'):
+        return redirect(url_for('admin_login'))
+
+    conn = get_db()
+    with conn.cursor() as cursor:
+        # Customers Mapping
+        cursor.execute('''
+            SELECT c.id, c.name, c.email, c.contact, c.address, c.created_at, COUNT(o.id) as order_count 
+            FROM customers c LEFT JOIN orders o ON c.id = o.customer_id 
+            GROUP BY c.id, c.name, c.email, c.contact, c.address, c.created_at 
+            ORDER BY c.created_at DESC
+        ''')
+        customers = cursor.fetchall()
+
+        # Recent Transactions
+        cursor.execute('''
+            SELECT o.*, c.name, c.contact, c.address, c.email 
+            FROM orders o JOIN customers c ON o.customer_id = c.id 
+            ORDER BY o.created_at DESC LIMIT 30
+        ''')
+        recent_orders = cursor.fetchall()
+
+        # Fetch Feedback/Comments
+        cursor.execute('SELECT * FROM comments ORDER BY created_at DESC')
+        feedback = cursor.fetchall()
+
+        # Revenue & Sales Logic
+        cursor.execute("SELECT SUM(total_price) as total_rev FROM orders WHERE status != 'Cancelled'")
+        rev_row = cursor.fetchone()
+        total_revenue = float(rev_row['total_rev']) if rev_row and rev_row['total_rev'] else 0.0
+
+        cursor.execute("SELECT SUM(quantity) as total_qty FROM orders WHERE status != 'Cancelled'")
+        qty_row = cursor.fetchone()
+        total_cookies_sold = int(qty_row['total_qty']) if qty_row and qty_row['total_qty'] else 0
+
+        # Graph Formatting
+        prod_labels, prod_data = [], []
+        for key, details in COOKIES.items():
+            cursor.execute("SELECT SUM(quantity) as vol FROM orders WHERE cookie_type = %s AND status != 'Cancelled'", (key,))
+            res = cursor.fetchone()
+            prod_labels.append(details['name'])
+            prod_data.append(int(res['vol']) if res and res['vol'] else 0)
+
+        # Timeline Logic
+        time_labels, time_data = [], []
+        for i in range(6, -1, -1):
+            day = (datetime.now() - timedelta(days=i)).date()
+            cursor.execute("SELECT SUM(quantity) as qty FROM orders WHERE DATE(created_at) = %s AND status != 'Cancelled'", (day,))
+            row = cursor.fetchone()
+            time_labels.append(day.strftime('%b %d'))
+            time_data.append(int(row['qty']) if row and row['qty'] else 0)
+
+    conn.close()
+    return render_template('admin_dashboard.html',
+                           customers=customers,
+                           recent_orders=recent_orders,
+                           feedback=feedback,
+                           cookies=COOKIES,
+                           total_revenue=total_revenue,
+                           total_cookies_sold=total_cookies_sold,
+                           best_cookie_name="Smores" if total_cookies_sold > 0 else "N/A",
+                           best_cookie_sales=total_cookies_sold,
+                           chart_labels=json.dumps(prod_labels),
+                           chart_data=json.dumps(prod_data),
+                           time_labels=json.dumps(time_labels),
+                           time_data=json.dumps(time_data))
+
+@app.route('/admin/delete_order/<int:order_id>', methods=['POST'])
+def admin_delete_order(order_id):
+    if not session.get('admin'): return redirect(url_for('admin_login'))
+    conn = get_db()
+    with conn.cursor() as cursor:
+        cursor.execute('DELETE FROM orders WHERE id = %s', (order_id,))
+    conn.close()
+    flash(f'Order #{order_id} deleted permanently.', 'success')
+    return redirect(url_for('admin_dashboard'))
+
+# ── NEW: DELETE COMMENT ROUTE ──
+@app.route('/admin/delete_comment/<int:comment_id>', methods=['POST'])
+def delete_comment(comment_id):
+    if not session.get('admin'): return redirect(url_for('admin_login'))
+    conn = get_db()
+    with conn.cursor() as cursor:
+        cursor.execute('DELETE FROM comments WHERE id = %s', (comment_id,))
+    conn.close()
+    flash('Comment removed from portal.', 'success')
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/add_product', methods=['POST'])
+def add_product():
+    if not session.get('admin'): return redirect(url_for('admin_login'))
+    name = request.form.get('name')
+    flash(f'Product {name} added to staging list!', 'success')
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/update_order/<int:order_id>', methods=['POST'])
+def update_order(order_id):
+    if not session.get('admin'): return redirect(url_for('admin_login'))
+    new_status = request.form.get('status')
+    delivery_date = request.form.get('delivery_date', 'Not Scheduled Yet')
+    conn = get_db()
+    with conn.cursor() as cursor:
+        cursor.execute('UPDATE orders SET status = %s, delivery_date = %s WHERE id = %s', (new_status, delivery_date, order_id))
+    conn.close()
+    flash(f'Order #{order_id} updated.', 'success')
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/logout')
+def admin_logout():
+    session.pop('admin', None)
+    return redirect(url_for('admin_login'))
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
