@@ -68,15 +68,15 @@ init_db()
 
 COOKIES = {
     'smores': {
-        'name': "S'mores Cookie",
-        'price': 75,
-        'desc': "A soft and chewy cookie inspired by the classic campfire treat.",
-        'emoji': '🔥',
+        'name': "S'mores",
+        'price': 35,
+        'desc': "Milk chocolate chip, graham crackers, and melted marshmallows.",
+        'emoji': '🍪',
         'tags': ['Bestseller', 'Fan Favorite']
     },
     'chocolate': {
-        'name': 'Chocolate Cookie',
-        'price': 65,
+        'name': 'Chocolate Chip Cookie',
+        'price': 30,
         'desc': 'A classic chocolate cookie baked to perfection with a soft, chewy center.',
         'emoji': '🍫',
         'tags': ['Classic', 'All-Time Fave']
