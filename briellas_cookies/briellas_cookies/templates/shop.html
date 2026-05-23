@@ -20,55 +20,73 @@
   }
   .btn-logout:hover { background: #8c2f1e; color: #fff; }
 
-  /* --- Hero Section (Full Description) --- */
+  /* --- Enhanced Hero Section --- */
   .hero-section { 
-    background-color: #3b1f0e; color: #faf7f2; padding: 120px 0; 
-    overflow: hidden; min-height: 65vh; display: flex; align-items: center;
+    background-color: #3b1f0e; 
+    color: #faf7f2; 
+    padding: 120px 0; 
+    overflow: hidden; 
+    min-height: 65vh; 
+    display: flex;
+    align-items: center;
   }
   .hero-container { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; padding: 0 40px; gap: 80px; }
   .hero-text { flex: 1.2; text-align: left; }
   .hero-text h2 { font-family: 'Playfair Display', serif; font-size: 4rem; margin-bottom: 30px; color: #e6dfd5; }
   .hero-text p { font-size: 1.25rem; line-height: 1.8; margin-bottom: 20px; color: #f1ede7; font-weight: 300; }
   .hero-visual { flex: 0.8; display: flex; justify-content: center; align-items: center; }
-  .big-cookie { font-size: 18rem; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.4)); animation: float 6s ease-in-out infinite; }
+  .big-cookie { 
+    font-size: 18rem; 
+    filter: drop-shadow(0 20px 40px rgba(0,0,0,0.4)); 
+    animation: float 6s ease-in-out infinite; 
+  }
 
   @keyframes float {
     0%, 100% { transform: translateY(0px) rotate(0deg); }
     50% { transform: translateY(-30px) rotate(8deg); }
   }
 
-  /* --- Adjusted Tagline & Menu Toggle --- */
-  .shop-intro { text-align: center; margin: 80px 0 40px; }
-  .shop-intro p { 
-    font-family: 'Jost', sans-serif; 
-    font-size: 1.15rem; 
-    color: #6e5643; 
-    margin-bottom: 25px; 
-    letter-spacing: 0.05em; 
-  }
-  .btn-view-menu {
-    background: #3b1f0e; color: #fff; border: none;
-    padding: 16px 45px; border-radius: 50px; cursor: pointer;
-    font-family: 'Jost'; font-weight: 600; text-transform: uppercase;
-    letter-spacing: 0.15em; transition: 0.3s;
-  }
-  .btn-view-menu:hover { background: #a67c52; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-
-  /* --- Hidden Product Controls & Grid --- */
-  #shopContent { display: none; margin-top: 40px; padding-top: 40px; border-top: 1px solid #e6dfd5; }
-
+  /* --- NEW: Search & Filter Styles --- */
   .shop-controls {
-    max-width: 1200px; margin: 0 auto 40px; padding: 0 20px;
-    display: flex; gap: 15px; align-items: center; justify-content: center; flex-wrap: wrap;
+    max-width: 1200px;
+    margin: 0 auto 40px;
+    padding: 0 20px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
   }
   .search-input {
-    flex: 1; min-width: 300px; max-width: 500px; padding: 12px 20px;
-    border: 1px solid #e6dfd5; border-radius: 30px; font-family: 'Jost'; font-size: 1rem; outline: none; transition: 0.3s;
+    flex: 1;
+    min-width: 300px;
+    max-width: 500px;
+    padding: 12px 20px;
+    border: 1px solid #e6dfd5;
+    border-radius: 30px;
+    font-family: 'Jost';
+    font-size: 1rem;
+    outline: none;
+    transition: 0.3s;
   }
+  .search-input:focus { border-color: #a67c52; box-shadow: 0 0 8px rgba(166,124,82,0.2); }
+  
   .category-select {
-    padding: 12px 20px; border: 1px solid #e6dfd5; border-radius: 30px;
-    background: #fff; font-family: 'Jost'; font-weight: 500; color: #3b1f0e; cursor: pointer; outline: none;
+    padding: 12px 20px;
+    border: 1px solid #e6dfd5;
+    border-radius: 30px;
+    background: #fff;
+    font-family: 'Jost';
+    font-weight: 500;
+    color: #3b1f0e;
+    cursor: pointer;
+    outline: none;
   }
+
+  /* --- Shop Intro --- */
+  .shop-intro { text-align: center; margin: 100px 0 40px; }
+  .shop-intro p { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: #261206; margin-bottom: 15px; }
+  .shop-now-tag { font-weight: 600; text-transform: uppercase; letter-spacing: 0.2em; color: #a67c52; font-size: 1rem; }
 
   /* --- Menu Grid --- */
   .shop-container { max-width: 1200px; margin: 0 auto; padding: 0 20px 80px; }
@@ -83,23 +101,15 @@
   .qty-input { width: 60px; padding: 10px; border: 1px solid #e6dfd5; border-radius: 4px; }
   .btn-order { flex: 1; background: #3b1f0e; color: #fff; border: none; padding: 12px; border-radius: 4px; cursor: pointer; font-weight: 600; text-transform: uppercase; }
 
-  /* --- History & Feedback (Restored Original Logic) --- */
+  /* --- History & Feedback (Kept original styles) --- */
   .history-header { margin-bottom: 30px; border-top: 1px solid #e6dfd5; padding-top: 40px; }
   .history-header h2 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #261206; }
   .history-card { background: #fff; border: 1px solid #e6dfd5; padding: 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
   .badge { padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; }
   .status-pending { background: #fef3c7; color: #92400e; }
-  
-  .btn-cancel { background: transparent; color: #8c2f1e; border: 1px solid #8c2f1e; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: 600; }
-  .btn-cancel:hover { background: #8c2f1e; color: #fff; }
-
   .feedback-section { margin-top: 60px; padding: 40px; background: #fff; border-radius: 12px; border: 1px solid #e6dfd5; }
   .feedback-textarea { width: 100%; padding: 15px; border: 1px solid #e6dfd5; border-radius: 8px; font-family: 'Jost'; margin-top: 15px; resize: vertical; }
   .btn-submit-feedback { background: #3b1f0e; color: #fff; border: none; padding: 12px 30px; border-radius: 6px; cursor: pointer; font-weight: 600; margin-top: 15px; }
-  
-  .feedback-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #eee; }
-  .btn-delete { background: none; border: none; cursor: pointer; font-size: 1.1rem; opacity: 0.5; }
-  .btn-delete:hover { opacity: 1; color: #8c2f1e; }
 </style>
 {% endblock %}
 
@@ -127,45 +137,41 @@
 
 <div class="shop-intro">
   <p>Take a bite of something homemade, warm, and freshly baked.</p>
-  <button class="btn-view-menu" id="toggleMenuBtn" onclick="toggleMenu()">View Our Menu</button>
+  <span class="shop-now-tag">Shop Our Flavors &darr;</span>
 </div>
 
-<div id="shopContent">
-    <div class="shop-controls">
-      <select class="category-select" id="categoryFilter">
-        <option value="all">All Products</option>
-        {% for id, cookie in cookies.items() %}
-        <option value="{{ cookie.name }}">{{ cookie.name }}</option>
-        {% endfor %}
-      </select>
+<div class="shop-controls">
+  <select class="category-select" id="categoryFilter">
+    <option value="all">All Products</option>
+    {% for id, cookie in cookies.items() %}
+    <option value="{{ cookie.name }}">{{ cookie.name }}</option>
+    {% endfor %}
+  </select>
 
-      <input type="text" class="search-input" id="cookieSearch" placeholder="Search for your favorite flavor (e.g. S'mores)...">
-    </div>
-
-    <div class="shop-container">
-      <div class="menu-grid" id="cookieGrid">
-        {% for id, cookie in cookies.items() %}
-        <div class="cookie-card" data-name="{{ cookie.name | lower }}">
-          <div class="cookie-body">
-            <div class="cookie-emoji">{{ cookie.emoji }}</div>
-            <h3 class="cookie-title">
-              {{ cookie.name }}
-              <span class="cookie-price">₱{{ cookie.price }}</span>
-            </h3>
-            <p class="cookie-desc">{{ cookie.desc }}</p>
-            <form method="POST" action="{{ url_for('order') }}" class="order-form">
-              <input type="hidden" name="cookie_type" value="{{ id }}">
-              <input type="number" name="quantity" class="qty-input" value="1" min="1" required>
-              <button type="submit" class="btn-order">Place Cookie Order</button>
-            </form>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-    </div>
+  <input type="text" class="search-input" id="cookieSearch" placeholder="Search for your favorite flavor (e.g. S'mores)...">
 </div>
 
 <div class="shop-container">
+  <div class="menu-grid" id="cookieGrid">
+    {% for id, cookie in cookies.items() %}
+    <div class="cookie-card" data-name="{{ cookie.name | lower }}">
+      <div class="cookie-body">
+        <div class="cookie-emoji">{{ cookie.emoji }}</div>
+        <h3 class="cookie-title">
+          {{ cookie.name }}
+          <span class="cookie-price">₱{{ cookie.price }}</span>
+        </h3>
+        <p class="cookie-desc">{{ cookie.desc }}</p>
+        <form method="POST" action="{{ url_for('order') }}" class="order-form">
+          <input type="hidden" name="cookie_type" value="{{ id }}">
+          <input type="number" name="quantity" class="qty-input" value="1" min="1" required>
+          <button type="submit" class="btn-order">Place Cookie Order</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
   <div class="history-header">
     <h2>Order History</h2>
   </div>
@@ -177,13 +183,8 @@
         <h4 style="margin:0 0 5px 0;">{{ cookies[order.cookie_type]['name'] if order.cookie_type in cookies else order.cookie_type }} (x{{ order.quantity }})</h4>
         <p style="margin:0; font-size: 0.85rem; color: #8c7667;">Total: ₱{{ "%.2f"|format(order.total_price) }}</p>
       </div>
-      <div style="display: flex; align-items: center; gap: 15px;">
+      <div class="status-block">
         <span class="badge status-pending">{{ order.status }}</span>
-        {% if order.status == 'Pending' %}
-        <form action="{{ url_for('cancel_order', order_id=loop.index0) }}" method="POST" style="margin:0;">
-            <button type="submit" class="btn-cancel">Cancel</button>
-        </form>
-        {% endif %}
       </div>
     </div>
     {% endfor %}
@@ -195,35 +196,10 @@
         <textarea name="message" rows="4" class="feedback-textarea" placeholder="Write your message here..." required></textarea>
         <button type="submit" class="btn-submit-feedback">Send Feedback</button>
     </form>
-
-    <div style="margin-top: 30px;">
-        {% for item in feedback %}
-        <div class="feedback-item">
-            <p style="margin:0;">"{{ item.message }}"</p>
-            <form action="{{ url_for('delete_feedback', feedback_id=loop.index0) }}" method="POST" style="margin:0;">
-                <button type="submit" class="btn-delete">🗑️</button>
-            </form>
-        </div>
-        {% endfor %}
-    </div>
   </section>
 </div>
 
 <script>
-  function toggleMenu() {
-    const content = document.getElementById('shopContent');
-    const btn = document.getElementById('toggleMenuBtn');
-    
-    if (content.style.display === "none" || content.style.display === "") {
-        content.style.display = "block";
-        btn.innerText = "Hide Menu";
-        content.scrollIntoView({ behavior: 'smooth' });
-    } else {
-        content.style.display = "none";
-        btn.innerText = "View Our Menu";
-    }
-  }
-
   const searchBar = document.getElementById('cookieSearch');
   const categoryFilter = document.getElementById('categoryFilter');
   const cards = document.querySelectorAll('.cookie-card');
@@ -236,7 +212,12 @@
       const name = card.getAttribute('data-name');
       const matchesSearch = name.includes(searchText);
       const matchesCategory = (selectedCat === 'all' || name === selectedCat);
-      card.style.display = (matchesSearch && matchesCategory) ? 'block' : 'none';
+
+      if (matchesSearch && matchesCategory) {
+        card.style.display = 'block';
+      } else {
+        card.style.display = 'none';
+      }
     });
   }
 
