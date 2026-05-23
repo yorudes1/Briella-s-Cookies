@@ -1,282 +1,302 @@
 {% extends 'base.html' %}
-
-{% block title %}Admin Dashboard — Briella's Cookies{% endblock %}
+{% block title %}Storefront Menu — Briella's Cookies{% endblock %}
 
 {% block extra_styles %}
 <style>
-  body { background: #faf7f2; color: #3b1f0e; font-family: 'Jost', sans-serif; }
-  .dashboard-container { padding: 40px; max-width: 1400px; margin: 0 auto; }
+  body { background: #faf7f2; color: #3b1f0e; font-family: 'Jost', sans-serif; margin: 0; scroll-behavior: smooth; }
   
-  /* --- Header --- */
-  .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-  .top-nav h1 { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: #261206; margin: 0; }
-  .top-nav h1 span { font-weight: 300; font-style: italic; }
-  .admin-status { font-size: 0.9rem; color: #8c7667; }
-  .btn-logout { color: #8c2f1e; text-decoration: none; font-weight: 700; margin-left: 10px; text-transform: uppercase; letter-spacing: 1px; }
-  
-  hr.header-line { border: 0; height: 1px; background-image: linear-gradient(to right, transparent, #e6dfd5, transparent); margin-bottom: 40px; }
-
-  /* --- Stat Cards --- */
-  .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 25px; margin-bottom: 50px; }
-  .stat-card { 
-    background: #fff; 
-    border: 1px solid #f2ece4; 
-    border-radius: 20px; 
-    padding: 30px; 
-    text-align: center;
-    box-shadow: 0 10px 30px rgba(59,31,14,0.04);
+  /* --- Navigation Header --- */
+  .shop-header { 
+    max-width: 1200px; margin: 0 auto; display: flex; 
+    justify-content: space-between; align-items: center; padding: 20px;
   }
-  .stat-icon { font-size: 1.5rem; margin-bottom: 10px; display: block; }
-  .stat-card h3 { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.2em; color: #a68b7c; margin-bottom: 8px; }
-  .stat-card .val { font-size: 2rem; font-family: 'Playfair Display', serif; color: #3b1f0e; font-weight: 700; }
+  .shop-header h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #261206; margin: 0; }
+  .shop-header h1 span { font-weight: 300; font-style: italic; }
+  .user-greet { font-size: 0.9rem; color: #6e5643; margin-right: 16px; }
+  .btn-logout { 
+    background: transparent; color: #8c2f1e; border: 1px solid #8c2f1e; 
+    padding: 8px 16px; border-radius: 4px; text-decoration: none; 
+    font-size: 0.8rem; font-weight: 600; text-transform: uppercase; transition: all 0.2s; 
+  }
+  .btn-logout:hover { background: #8c2f1e; color: #fff; }
 
-  /* --- Manage Products --- */
-  .admin-panel-card { background: #fff; border: 1px solid #e6dfd5; border-radius: 15px; padding: 30px; margin-bottom: 40px; }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 15px; align-items: center; }
-  input { padding: 12px; border: 1px solid #efe9e1; border-radius: 8px; font-family: 'Jost'; background: #fdfcfb; width: 100%; }
-  
-  /* Status Badges */
-  .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
-  .status-in { background: #e6f4ea; color: #1e7e34; }
-  .status-out { background: #fce8e6; color: #d93025; }
+  /* --- Enhanced Hero Section --- */
+  .hero-section { 
+    background-color: #3b1f0e; 
+    color: #faf7f2; 
+    padding: 120px 0; 
+    overflow: hidden; 
+    min-height: 65vh; 
+    display: flex;
+    align-items: center;
+  }
+  .hero-container { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; padding: 0 40px; gap: 80px; }
+  .hero-text { flex: 1.2; text-align: left; }
+  .hero-text h2 { font-family: 'Playfair Display', serif; font-size: 4rem; margin-bottom: 30px; color: #e6dfd5; }
+  .hero-text p { font-size: 1.25rem; line-height: 1.8; margin-bottom: 20px; color: #f1ede7; font-weight: 300; }
+  .hero-visual { flex: 0.8; display: flex; justify-content: center; align-items: center; }
+  .big-cookie { 
+    font-size: 18rem; 
+    filter: drop-shadow(0 20px 40px rgba(0,0,0,0.4)); 
+    animation: float 6s ease-in-out infinite; 
+  }
 
-  .btn-action { background: #3b1f0e; color: #fff; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; transition: 0.3s; }
-  .btn-action:hover { background: #5a3119; }
-  .btn-toggle { background: #f9f6f2; color: #3b1f0e; border: 1px solid #e6dfd5; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.7rem; font-weight: 600; }
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-30px) rotate(8deg); }
+  }
 
-  /* --- Tables --- */
-  h2 { font-family: 'Playfair Display'; margin: 40px 0 20px; color: #261206; }
-  .table-wrapper { background: #fff; border: 1px solid #e6dfd5; border-radius: 15px; overflow: hidden; margin-bottom: 30px; }
-  table { width: 100%; border-collapse: collapse; }
-  th { background: #f9f6f2; padding: 18px; text-align: left; color: #8c7667; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
-  td { padding: 18px; border-bottom: 1px solid #f9f6f2; font-size: 0.95rem; }
+  /* --- Shop Intro & CTA Area --- */
+  .shop-intro { text-align: center; margin: 100px 0 30px; }
+  /* Updated Intro font to be cleaner/less straining */
+  .shop-intro p { font-family: 'Jost', sans-serif; font-weight: 500; font-size: 1.8rem; color: #261206; margin-bottom: 5px; letter-spacing: -0.02em; }
+  .shop-now-tag { font-weight: 600; text-transform: uppercase; letter-spacing: 0.2em; color: #a67c52; font-size: 1rem; cursor: pointer; }
   
-  .btn-delete-small { background: transparent; border: 1px solid #eee; padding: 8px; border-radius: 8px; cursor: pointer; color: #d1d1d1; transition: 0.2s; }
-  .btn-delete-small:hover { color: #8c2f1e; background: #fff5f5; border-color: #fee2e2; }
+  .cta-button-group { display: flex; justify-content: center; gap: 20px; margin-top: 25px; align-items: center; }
   
-  select { padding: 8px; border-radius: 6px; border: 1px solid #efe9e1; background: #fdfcfb; font-family: 'Jost'; }
-  .reports-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 30px; margin-bottom: 50px; }
-  .chart-card { background: #fff; border: 1px solid #e6dfd5; border-radius: 15px; padding: 25px; display: flex; flex-direction: column; }
-  .chart-wrapper { position: relative; height: 300px; width: 100%; }
+  .btn-view-menu, .btn-history-toggle {
+    background: #3b1f0e; color: #fff; border: none; padding: 15px 35px; 
+    border-radius: 30px; cursor: pointer; font-weight: 600; text-transform: uppercase;
+    transition: 0.3s; font-size: 0.85rem; letter-spacing: 1px;
+  }
+  .btn-view-menu:hover, .btn-history-toggle:hover { background: #594132; transform: translateY(-2px); }
+
+  /* --- Search & Product Dropdown Styling --- */
+  .controls-row {
+    max-width: 700px;
+    margin: 0 auto 50px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .search-input {
+    flex: 1;
+    padding: 14px 25px;
+    border: 1px solid #e6dfd5;
+    border-radius: 30px;
+    font-family: 'Jost', sans-serif;
+    outline: none;
+    transition: 0.3s;
+    background: #fff;
+  }
+  .product-dropdown-wrapper { position: relative; }
+  .dropdown-btn {
+    background: #fff; border: 1px solid #e6dfd5; padding: 12px 20px;
+    border-radius: 30px; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; transition: 0.3s;
+  }
+  .dropdown-btn:hover { border-color: #a67c52; }
+  .dropdown-content {
+    display: none; position: absolute; right: 0; top: 55px; background: #fff;
+    min-width: 220px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); border-radius: 12px;
+    z-index: 100; border: 1px solid #e6dfd5; padding: 10px 0;
+  }
+  .dropdown-content.show { display: block; }
+  .dropdown-content a {
+    color: #3b1f0e; padding: 12px 20px; text-decoration: none; display: block;
+    font-size: 0.95rem; transition: 0.2s;
+  }
+  .dropdown-content a:hover { background: #faf7f2; color: #a67c52; padding-left: 25px; }
+
+  /* --- Hidden Sections --- */
+  #productSection, #historySection { display: none; margin-top: 40px; }
+
+  /* --- Menu Grid --- */
+  .shop-container { max-width: 1200px; margin: 0 auto; padding: 0 20px 80px; }
+  .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 32px; margin-bottom: 80px; }
+  .cookie-card { background: #fff; border: 1px solid #e6dfd5; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(59,31,14,0.05); transition: 0.3s; }
+  .cookie-card:hover { transform: translateY(-5px); }
+  .cookie-body { padding: 30px; }
+  .cookie-emoji { font-size: 3rem; margin-bottom: 10px; }
+  .cookie-title { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: #261206; display: flex; justify-content: space-between; margin: 0;}
+  .cookie-price { color: #a67c52; }
+  .order-form { display: flex; gap: 10px; margin-top: 20px; }
+  .qty-input { width: 60px; padding: 10px; border: 1px solid #e6dfd5; border-radius: 4px; }
+  .btn-order { flex: 1; background: #3b1f0e; color: #fff; border: none; padding: 12px; border-radius: 4px; cursor: pointer; font-weight: 600; text-transform: uppercase; }
+
+  /* --- History Styling --- */
+  .history-card { background: #fff; border: 1px solid #e6dfd5; padding: 25px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+  .btn-delete { background: #fff; color: #8c2f1e; border: 1px solid #fee2e2; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; transition: 0.2s; }
+  .badge { padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; }
+  .status-pending { background: #fef3c7; color: #92400e; }
+  .empty-history-note { text-align: center; color: #8c7667; padding: 40px; font-style: italic; font-size: 1.1rem; }
+
+  /* --- Feedback Section (Always Visible) --- */
+  .feedback-section { max-width: 1200px; margin: 40px auto 80px; padding: 40px; background: #fff; border-radius: 12px; border: 1px solid #e6dfd5; }
+  .feedback-section h2 { font-family: 'Playfair Display', serif; color: #261206; margin-bottom: 5px; }
+  .feedback-subtitle { color: #6e5643; margin-bottom: 20px; font-size: 1rem; }
+  .feedback-textarea { width: 100%; padding: 15px; border: 1px solid #e6dfd5; border-radius: 8px; font-family: 'Jost'; margin-top: 10px; outline: none; resize: vertical; box-sizing: border-box; }
+  .btn-submit-feedback { background: #3b1f0e; color: #fff; border: none; padding: 12px 30px; border-radius: 6px; cursor: pointer; font-weight: 600; margin-top: 15px; transition: 0.3s; }
+  .btn-submit-feedback:hover { background: #594132; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-  <div class="top-nav">
-    <h1>Briella's <span>Cookies</span></h1>
-    <div class="admin-status">
-      Logged in as Admin | <a href="{{ url_for('admin_logout') }}" class="btn-logout">Log Out</a>
+<header class="shop-header">
+  <h1>Briella's <span>Cookies</span></h1>
+  <div>
+    <span class="user-greet">Hello, <strong>{{ session['user_name'] }}</strong>!</span>
+    <a href="{{ url_for('logout') }}" class="btn-logout">Sign Out</a>
+  </div>
+</header>
+
+<section class="hero-section">
+  <div class="hero-container">
+    <div class="hero-text">
+      <h2>Welcome to Briella's!</h2>
+      <p>Where every batch is homemade with love, care, and the joy of sharing something sweet. What started as a small passion for baking has slowly grown into a business built on warm ovens, late-night baking sessions, and recipes made to feel comforting and familiar.</p>
+      <p>We believe the best cookies are the ones that taste homemade — soft, fresh, flavorful, and made with real ingredients you can trust.</p>
+      <p>As a growing small business, every order means so much to us. Your support helps turn a simple dream into something bigger.</p>
+    </div>
+    <div class="hero-visual">
+      <div class="big-cookie">🍪</div>
     </div>
   </div>
+</section>
+
+<div class="shop-intro">
+  <p>Take a bite of something homemade, warm, and freshly baked.</p>
+  <span class="shop-now-tag" onclick="toggleMenu()">Shop Our Flavors &rarr;</span>
   
-  <hr class="header-line">
-
-  <div class="grid-stats">
-    <div class="stat-card">
-      <span class="stat-icon">💰</span>
-      <h3>Store Revenue</h3>
-      <div class="val">₱{{ "%.2f"|format(total_revenue) }}</div>
-    </div>
-    <div class="stat-card">
-      <span class="stat-icon">🍪</span>
-      <h3>Cookies Baked</h3>
-      <div class="val">{{ total_cookies_sold }} Pcs</div>
-    </div>
-    <div class="stat-card">
-      <span class="stat-icon">✨</span>
-      <h3>Top Seller</h3>
-      <div class="val">{{ best_cookie_name }}</div>
-    </div>
-    <div class="stat-card">
-      <span class="stat-icon">👩‍🍳</span>
-      <h3>Customers</h3>
-      <div class="val">{{ num_customers }}</div>
-    </div>
-  </div>
-
-  <h2>Manage Products</h2>
-  <div class="admin-panel-card">
-    <p style="margin-bottom: 20px; color: #8c7667; font-size: 0.9rem;">Add new flavors or update existing inventory stock status.</p>
-    
-    <form action="{{ url_for('add_product') }}" method="POST" style="margin-bottom: 30px;">
-      <div class="form-row">
-        <input type="text" name="name" placeholder="Cookie Name" required>
-        <input type="number" step="0.01" name="price" placeholder="Price (₱)" required>
-        <input type="text" name="emoji" placeholder="Emoji (e.g. 🍪)">
-        <button type="submit" class="btn-action">Add Product</button>
-      </div>
-    </form>
-
-    <div class="table-wrapper" style="margin-bottom: 0;">
-      <table>
-        <thead>
-          <tr>
-            <th>Product</th>
-            <th>Price</th>
-            <th>Stock Status</th>
-            <th style="text-align: center;">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for product in products %}
-          <tr>
-            <td><span style="font-size: 1.2rem; margin-right: 10px;">{{ product.emoji }}</span> <strong>{{ product.name }}</strong></td>
-            <td>₱{{ "%.2f"|format(product.price) }}</td>
-            <td>
-              <span class="status-badge {{ 'status-in' if product.in_stock else 'status-out' }}">
-                {{ 'In Stock' if product.in_stock else 'Sold Out' }}
-              </span>
-            </td>
-            <td style="display: flex; gap: 10px; justify-content: center;">
-              <form action="{{ url_for('toggle_stock', prod_id=product.id) }}" method="POST">
-                <button type="submit" class="btn-toggle">Toggle Stock</button>
-              </form>
-              <form action="{{ url_for('delete_product', prod_id=product.id) }}" method="POST" onsubmit="return confirm('Remove this product?')">
-                <button type="submit" class="btn-delete-small">🗑️</button>
-              </form>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <h2>Sales Report</h2>
-  <div class="reports-grid">
-    <div class="chart-card">
-      <h3>Top Selling Flavors</h3>
-      <div class="chart-wrapper">
-        <canvas id="productPieChart"></canvas>
-      </div>
-    </div>
-    <div class="chart-card">
-      <h3>Weekly Store Orders</h3>
-      <div class="chart-wrapper">
-        <canvas id="trendsLineChart"></canvas>
-      </div>
-    </div>
-  </div>
-
-  <h2>Manage Customer Orders</h2>
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Customer</th>
-          <th>Product</th>
-          <th>Total</th>
-          <th>Status</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for order in recent_orders %}
-        <tr>
-          <td>#{{ order.id }}</td>
-          <td><strong>{{ order.customer_name }}</strong></td>
-          <td>{{ order.quantity }}x {{ order.cookie_type }}</td>
-          <td>₱{{ order.total_price }}</td>
-          <td>
-            <form method="POST" action="{{ url_for('update_order', order_id=order.id) }}" style="display:flex; gap:8px;">
-              <select name="status">
-                <option value="Pending" {% if order.status == 'Pending' %}selected{% endif %}>Pending</option>
-                <option value="Delivered" {% if order.status == 'Delivered' %}selected{% endif %}>Delivered</option>
-                <option value="Cancelled" {% if order.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
-              </select>
-              <button type="submit" class="btn-action" style="padding: 5px 12px; font-size: 0.7rem;">Save</button>
-            </form>
-          </td>
-          <td>
-             <form action="{{ url_for('admin_delete_order', order_id=order.id) }}" method="POST" onsubmit="return confirm('Delete permanently?')">
-               <button type="submit" class="btn-delete-small">🗑️</button>
-             </form>
-          </td>
-        </tr>
-        {% else %}
-        <tr><td colspan="6" style="text-align:center; padding: 40px; color: #a68b7c;">No orders found.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-
-  <h2>Customer Feedback</h2>
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>Customer</th>
-          <th>Message</th>
-          <th style="width: 80px; text-align: center;">Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for comment in customer_comments %}
-        <tr>
-          <td><strong>{{ comment.user_name }}</strong></td>
-          <td>"{{ comment.text }}"</td>
-          <td style="text-align: center;">
-            <form action="{{ url_for('delete_comment', comment_id=comment.id) }}" method="POST">
-              <button type="submit" class="btn-delete-small">🗑️</button>
-            </form>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <div class="cta-button-group">
+    <button class="btn-view-menu" id="menuBtn" onclick="toggleMenu()">View Our Menu</button>
+    <button class="btn-history-toggle" id="historyBtn" onclick="toggleHistory()">Order History</button>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const ctxPie = document.getElementById('productPieChart').getContext('2d');
-    new Chart(ctxPie, {
-      type: 'pie',
-      data: {
-        labels: {{ chart_labels | safe }},
-        datasets: [{
-          data: {{ chart_data | safe }},
-          backgroundColor: ['#3b1f0e', '#8c7667', '#d9c5b2', '#f2ece4'],
-          borderWidth: 2,
-          borderColor: '#ffffff'
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { position: 'bottom' } }
-      }
-    });
+<div id="historySection" class="shop-container">
+    <h2 style="font-family: 'Playfair Display'; text-align: center; margin-bottom: 30px;">Your Orders</h2>
+    <div class="history-list">
+      {% if orders %}
+        {% for order in orders %}
+        <div class="history-card">
+          <div>
+            <h4 style="margin:0 0 5px 0;">{{ cookies[order.cookie_type]['name'] if order.cookie_type in cookies else order.cookie_type }} (x{{ order.quantity }})</h4>
+            <p style="margin:0; font-size: 0.85rem; color: #8c7667;">Total: ₱{{ "%.2f"|format(order.total_price) }} — {{ order.created_at }}</p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 15px;">
+            <span class="badge status-pending">{{ order.status }}</span>
+            <form action="{{ url_for('delete_order', order_id=order.id) }}" method="POST">
+              <button type="submit" class="btn-delete" onclick="return confirm('Cancel this order?')">Cancel</button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-history-note">
+          What’s stopping you? Your next favorite cookie is just a click away — order now!
+        </div>
+      {% endif %}
+    </div>
+</div>
 
-    const ctxLine = document.getElementById('trendsLineChart').getContext('2d');
-    new Chart(ctxLine, {
-      type: 'line',
-      data: {
-        labels: {{ time_labels | safe }},
-        datasets: [{
-          label: 'Total Orders',
-          data: {{ time_data | safe }},
-          borderColor: '#3b1f0e',
-          backgroundColor: 'rgba(59, 31, 14, 0.05)',
-          fill: true,
-          tension: 0.3,
-          pointRadius: 6,
-          pointBackgroundColor: '#3b1f0e'
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: { 
-          y: { beginAtZero: true, ticks: { stepSize: 1 } },
-          x: { grid: { display: false } }
-        },
-        plugins: { legend: { display: false } }
-      }
+<div id="productSection" class="shop-container">
+  <div class="controls-row">
+    <input type="text" id="cookieSearch" class="search-input" placeholder="Search for your favorite cookie flavor...">
+    
+    <div class="product-dropdown-wrapper">
+      <button class="dropdown-btn" onclick="toggleDropdown()">🧺 ▼</button>
+      <div id="productDropdown" class="dropdown-content">
+        {% for id, cookie in cookies.items() %}
+        <a onclick="scrollToCookie('cookie-{{ id }}')">{{ cookie.name }}</a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="menu-grid" id="menuGrid">
+    {% for id, cookie in cookies.items() %}
+    <div class="cookie-card" id="cookie-{{ id }}" data-name="{{ cookie.name|lower }}">
+      <div class="cookie-body">
+        <div class="cookie-emoji">{{ cookie.emoji }}</div>
+        <h3 class="cookie-title">
+          {{ cookie.name }}
+          <span class="cookie-price">₱{{ cookie.price }}</span>
+        </h3>
+        <p class="cookie-desc">{{ cookie.desc }}</p>
+        <form method="POST" action="{{ url_for('order') }}" class="order-form">
+          <input type="hidden" name="cookie_type" value="{{ id }}">
+          <input type="number" name="quantity" class="qty-input" value="1" min="1" required>
+          <button type="submit" class="btn-order">Place Cookie Order</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<section class="feedback-section">
+  <h2>Leave us a comment to Tell us what you think!</h2>
+  <p class="feedback-subtitle">Your feedback matters. 🍪</p>
+  <form action="{{ url_for('submit_feedback') }}" method="POST">
+      <textarea name="message" rows="4" class="feedback-textarea" placeholder="Write your message here..." required></textarea>
+      <button type="submit" class="btn-submit-feedback">Send Feedback</button>
+  </form>
+</section>
+
+<script>
+  // Toggle Logic for Menu
+  function toggleMenu() {
+    const section = document.getElementById('productSection');
+    const btn = document.getElementById('menuBtn');
+    if (section.style.display === 'block') {
+      section.style.display = 'none';
+      btn.innerText = 'View Our Menu';
+    } else {
+      section.style.display = 'block';
+      btn.innerText = 'Hide Menu';
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  // Toggle Logic for History
+  function toggleHistory() {
+    const section = document.getElementById('historySection');
+    const btn = document.getElementById('historyBtn');
+    if (section.style.display === 'block') {
+      section.style.display = 'none';
+      btn.innerText = 'Order History';
+    } else {
+      section.style.display = 'block';
+      btn.innerText = 'Hide History';
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  // Product Dropdown Logic
+  function toggleDropdown() {
+    document.getElementById("productDropdown").classList.toggle("show");
+  }
+
+  function scrollToCookie(id) {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      document.getElementById("productDropdown").classList.remove("show");
+      element.style.outline = "2px solid #a67c52";
+      setTimeout(() => element.style.outline = "none", 2000);
+    }
+  }
+
+  // Search Logic
+  document.getElementById('cookieSearch').addEventListener('keyup', function() {
+    let filter = this.value.toLowerCase();
+    let cards = document.querySelectorAll('.cookie-card');
+    cards.forEach(card => {
+      let name = card.getAttribute('data-name');
+      card.style.display = name.includes(filter) ? "" : "none";
     });
   });
+
+  // Close dropdown if user clicks outside
+  window.onclick = function(event) {
+    if (!event.target.matches('.dropdown-btn')) {
+      const dropdowns = document.getElementsByClassName("dropdown-content");
+      for (let i = 0; i < dropdowns.length; i++) {
+        if (dropdowns[i].classList.contains('show')) {
+          dropdowns[i].classList.remove('show');
+        }
+      }
+    }
+  }
 </script>
 {% endblock %}
