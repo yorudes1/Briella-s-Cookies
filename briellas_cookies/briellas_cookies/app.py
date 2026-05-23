@@ -251,9 +251,9 @@ def admin_dashboard():
         ''')
         recent_orders = cursor.fetchall()
 
-        # Fetch Feedback/Comments
-        cursor.execute('SELECT * FROM comments ORDER BY created_at DESC')
-        feedback = cursor.fetchall()
+        # Fetch Feedback/Comments (Renamed to match dashboard template)
+        cursor.execute('SELECT id, customer_name AS user_name, message AS text FROM comments ORDER BY created_at DESC')
+        customer_comments = cursor.fetchall()
 
         # Revenue & Sales Logic
         cursor.execute("SELECT SUM(total_price) as total_rev FROM orders WHERE status != 'Cancelled'")
@@ -264,7 +264,7 @@ def admin_dashboard():
         qty_row = cursor.fetchone()
         total_cookies_sold = int(qty_row['total_qty']) if qty_row and qty_row['total_qty'] else 0
 
-        # Graph Formatting
+        # Graph Formatting (Real Data for Pie Chart)
         prod_labels, prod_data = [], []
         for key, details in COOKIES.items():
             cursor.execute("SELECT SUM(quantity) as vol FROM orders WHERE cookie_type = %s AND status != 'Cancelled'", (key,))
@@ -272,7 +272,7 @@ def admin_dashboard():
             prod_labels.append(details['name'])
             prod_data.append(int(res['vol']) if res and res['vol'] else 0)
 
-        # Timeline Logic
+        # Timeline Logic (Real Data for Line Chart)
         time_labels, time_data = [], []
         for i in range(6, -1, -1):
             day = (datetime.now() - timedelta(days=i)).date()
@@ -281,16 +281,20 @@ def admin_dashboard():
             time_labels.append(day.strftime('%b %d'))
             time_data.append(int(row['qty']) if row and row['qty'] else 0)
 
+        # Identify Top Seller Name
+        cursor.execute("SELECT cookie_type, SUM(quantity) as total FROM orders GROUP BY cookie_type ORDER BY total DESC LIMIT 1")
+        top_row = cursor.fetchone()
+        best_cookie = top_row['cookie_type'] if top_row else "None"
+
     conn.close()
     return render_template('admin_dashboard.html',
                            customers=customers,
                            recent_orders=recent_orders,
-                           feedback=feedback,
+                           customer_comments=customer_comments,
                            cookies=COOKIES,
                            total_revenue=total_revenue,
                            total_cookies_sold=total_cookies_sold,
-                           best_cookie_name="Smores" if total_cookies_sold > 0 else "N/A",
-                           best_cookie_sales=total_cookies_sold,
+                           best_cookie_name=best_cookie.capitalize(),
                            chart_labels=json.dumps(prod_labels),
                            chart_data=json.dumps(prod_data),
                            time_labels=json.dumps(time_labels),
@@ -306,7 +310,6 @@ def admin_delete_order(order_id):
     flash(f'Order #{order_id} deleted permanently.', 'success')
     return redirect(url_for('admin_dashboard'))
 
-# ── NEW: DELETE COMMENT ROUTE ──
 @app.route('/admin/delete_comment/<int:comment_id>', methods=['POST'])
 def delete_comment(comment_id):
     if not session.get('admin'): return redirect(url_for('admin_login'))
@@ -328,10 +331,9 @@ def add_product():
 def update_order(order_id):
     if not session.get('admin'): return redirect(url_for('admin_login'))
     new_status = request.form.get('status')
-    delivery_date = request.form.get('delivery_date', 'Not Scheduled Yet')
     conn = get_db()
     with conn.cursor() as cursor:
-        cursor.execute('UPDATE orders SET status = %s, delivery_date = %s WHERE id = %s', (new_status, delivery_date, order_id))
+        cursor.execute('UPDATE orders SET status = %s WHERE id = %s', (new_status, order_id))
     conn.close()
     flash(f'Order #{order_id} updated.', 'success')
     return redirect(url_for('admin_dashboard'))
