@@ -171,6 +171,28 @@ def order():
     flash(f'Order placed! {quantity}x {COOKIES[cookie_type]["name"]}', 'success')
     return redirect(url_for('shop'))
 
+# ── ADDED REVISION: DELETE ORDER ROUTE ──
+@app.route('/delete_order/<int:order_id>', methods=['POST'])
+def delete_order(order_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+        
+    conn = get_db()
+    try:
+        with conn.cursor() as cursor:
+            # We verify the customer_id so users can only delete their own orders
+            cursor.execute(
+                'DELETE FROM orders WHERE id = %s AND customer_id = %s', 
+                (order_id, session['user_id'])
+            )
+        flash('Order has been cancelled.', 'success')
+    except Exception as e:
+        flash('An error occurred while trying to cancel the order.', 'error')
+    finally:
+        conn.close()
+    
+    return redirect(url_for('shop'))
+
 @app.route('/logout')
 def logout():
     session.clear()
