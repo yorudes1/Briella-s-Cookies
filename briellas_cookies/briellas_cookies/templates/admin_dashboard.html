@@ -7,7 +7,7 @@
   body { background: #faf7f2; color: #3b1f0e; font-family: 'Jost', sans-serif; }
   .dashboard-container { padding: 40px; max-width: 1400px; margin: 0 auto; }
   
-  /* --- Header & Horizontal Line --- */
+  /* --- Header --- */
   .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
   .top-nav h1 { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: #261206; margin: 0; }
   .top-nav h1 span { font-weight: 300; font-style: italic; }
@@ -24,10 +24,8 @@
     border-radius: 20px; 
     padding: 30px; 
     text-align: center;
-    transition: all 0.3s ease;
     box-shadow: 0 10px 30px rgba(59,31,14,0.04);
   }
-  .stat-card:hover { transform: translateY(-8px); }
   .stat-icon { font-size: 1.5rem; margin-bottom: 10px; display: block; }
   .stat-card h3 { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.2em; color: #a68b7c; margin-bottom: 8px; }
   .stat-card .val { font-size: 2rem; font-family: 'Playfair Display', serif; color: #3b1f0e; font-weight: 700; }
@@ -37,13 +35,23 @@
   .chart-card { background: #fff; border: 1px solid #e6dfd5; border-radius: 15px; padding: 25px; display: flex; flex-direction: column; }
   .chart-wrapper { position: relative; height: 300px; width: 100%; }
 
+  /* --- Manage Products Section --- */
+  .admin-panel-card { background: #fff; border: 1px solid #e6dfd5; border-radius: 15px; padding: 30px; margin-bottom: 40px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 15px; align-items: center; }
+  input { padding: 12px; border: 1px solid #efe9e1; border-radius: 8px; font-family: 'Jost'; background: #fdfcfb; width: 100%; }
+  .btn-action { background: #3b1f0e; color: #fff; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; }
+
   /* --- Tables --- */
-  .table-wrapper { background: #fff; border: 1px solid #e6dfd5; border-radius: 15px; overflow: hidden; margin-top: 20px; }
+  h2 { font-family: 'Playfair Display'; margin: 40px 0 20px; color: #261206; }
+  .table-wrapper { background: #fff; border: 1px solid #e6dfd5; border-radius: 15px; overflow: hidden; margin-bottom: 30px; }
   table { width: 100%; border-collapse: collapse; }
-  th { background: #f9f6f2; padding: 18px; text-align: left; color: #8c7667; font-size: 0.75rem; text-transform: uppercase; }
-  td { padding: 18px; border-bottom: 1px solid #f9f6f2; }
-  .btn-delete-small { background: transparent; border: 1px solid #eee; padding: 8px; border-radius: 8px; cursor: pointer; color: #d1d1d1; }
-  .btn-delete-small:hover { color: #8c2f1e; background: #fff5f5; }
+  th { background: #f9f6f2; padding: 18px; text-align: left; color: #8c7667; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
+  td { padding: 18px; border-bottom: 1px solid #f9f6f2; font-size: 0.95rem; }
+  
+  .btn-delete-small { background: transparent; border: 1px solid #eee; padding: 8px; border-radius: 8px; cursor: pointer; color: #d1d1d1; transition: 0.2s; }
+  .btn-delete-small:hover { color: #8c2f1e; background: #fff5f5; border-color: #fee2e2; }
+  
+  select { padding: 8px; border-radius: 6px; border: 1px solid #efe9e1; background: #fdfcfb; font-family: 'Jost'; }
 </style>
 {% endblock %}
 
@@ -81,7 +89,19 @@
     </div>
   </div>
 
-  <h2 style="font-family: 'Playfair Display';">Sales Report</h2>
+  <h2>Manage Products</h2>
+  <div class="admin-panel-card">
+    <form action="{{ url_for('add_product') }}" method="POST">
+      <div class="form-row">
+        <input type="text" name="name" placeholder="Cookie Name" required>
+        <input type="number" name="price" placeholder="Price (₱)" required>
+        <input type="text" name="emoji" placeholder="Emoji (e.g. 🍪)">
+        <button type="submit" class="btn-action">Add Product to Shop</button>
+      </div>
+    </form>
+  </div>
+
+  <h2>Sales Report</h2>
   <div class="reports-grid">
     <div class="chart-card">
       <h3>Top Selling Flavors</h3>
@@ -97,14 +117,57 @@
     </div>
   </div>
 
-  <h2 style="font-family: 'Playfair Display'; margin-top: 50px;">Customer Feedback</h2>
+  <h2>Manage Customer Orders</h2>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Customer</th>
+          <th>Product</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in recent_orders %}
+        <tr>
+          <td>#{{ order.id }}</td>
+          <td><strong>{{ order.name }}</strong><br><small>{{ order.contact }}</small></td>
+          <td>{{ order.quantity }}x {{ order.cookie_type }}</td>
+          <td>₱{{ order.total_price }}</td>
+          <td>
+            <form method="POST" action="{{ url_for('update_order', order_id=order.id) }}" style="display:flex; gap:8px;">
+              <select name="status">
+                <option value="Pending" {% if order.status == 'Pending' %}selected{% endif %}>Pending</option>
+                <option value="Delivered" {% if order.status == 'Delivered' %}selected{% endif %}>Delivered</option>
+                <option value="Cancelled" {% if order.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+              </select>
+              <button type="submit" class="btn-action" style="padding: 5px 12px; font-size: 0.7rem;">Save</button>
+            </form>
+          </td>
+          <td>
+             <form action="{{ url_for('admin_delete_order', order_id=order.id) }}" method="POST" onsubmit="return confirm('Delete this order permanently?')">
+               <button type="submit" class="btn-delete-small">🗑️</button>
+             </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" style="text-align:center; padding: 40px; color: #a68b7c;">No orders found yet. 🍪</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Customer Feedback</h2>
   <div class="table-wrapper">
     <table>
       <thead>
         <tr>
           <th>Customer</th>
           <th>Message</th>
-          <th style="width: 80px;">Action</th>
+          <th style="width: 80px; text-align: center;">Action</th>
         </tr>
       </thead>
       <tbody>
@@ -112,14 +175,14 @@
         <tr>
           <td><strong>{{ comment.user_name }}</strong></td>
           <td>"{{ comment.text }}"</td>
-          <td>
-            <form action="{{ url_for('delete_comment', comment_id=comment.id) }}" method="POST">
+          <td style="text-align: center;">
+            <form action="{{ url_for('delete_comment', comment_id=comment.id) }}" method="POST" onsubmit="return confirm('Delete this feedback?')">
               <button type="submit" class="btn-delete-small">🗑️</button>
             </form>
           </td>
         </tr>
         {% else %}
-        <tr><td colspan="3" style="text-align:center; padding: 40px; color: #a68b7c;">No feedback found.</td></tr>
+        <tr><td colspan="3" style="text-align:center; padding: 40px; color: #a68b7c;">No messages yet!</td></tr>
         {% endfor %}
       </tbody>
     </table>
@@ -129,15 +192,14 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    
     // PIE CHART
     const ctxPie = document.getElementById('productPieChart').getContext('2d');
     new Chart(ctxPie, {
       type: 'pie',
       data: {
-        labels: {{ chart_labels | safe }}, 
+        labels: {{ chart_labels | safe }},
         datasets: [{
-          data: {{ chart_data | safe }},  
+          data: {{ chart_data | safe }},
           backgroundColor: ['#3b1f0e', '#8c7667', '#d9c5b2', '#f2ece4'],
           borderWidth: 2,
           borderColor: '#ffffff'
@@ -150,19 +212,19 @@
       }
     });
 
-    // LINE CHART: Accurate daily tracking
+    // LINE CHART
     const ctxLine = document.getElementById('trendsLineChart').getContext('2d');
     new Chart(ctxLine, {
       type: 'line',
       data: {
-        labels: {{ time_labels | safe }}, 
+        labels: {{ time_labels | safe }},
         datasets: [{
           label: 'Total Orders',
-          data: {{ time_data | safe }},   
+          data: {{ time_data | safe }},
           borderColor: '#3b1f0e',
           backgroundColor: 'rgba(59, 31, 14, 0.05)',
           fill: true,
-          tension: 0.3, 
+          tension: 0.3,
           pointRadius: 6,
           pointBackgroundColor: '#3b1f0e'
         }]
@@ -173,7 +235,8 @@
         scales: { 
           y: { beginAtZero: true, ticks: { stepSize: 1 } },
           x: { grid: { display: false } }
-        }
+        },
+        plugins: { legend: { display: false } }
       }
     });
   });
