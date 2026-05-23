@@ -66,8 +66,7 @@ def init_db():
 
 init_db()
 
-# NOTE: For "Add Product" to reflect automatically in shop.html, 
-
+# Product Dictionary (Standard Menu)
 COOKIES = {
     'smores': {
         'name': "S'mores Cookie",
@@ -193,6 +192,24 @@ def delete_order(order_id):
     flash('Order cancelled.', 'success')
     return redirect(url_for('shop'))
 
+# ── NEW: SUBMIT FEEDBACK ROUTE ──
+@app.route('/submit_feedback', methods=['POST'])
+def submit_feedback():
+    if 'user_name' not in session:
+        return redirect(url_for('login'))
+    
+    message = request.form.get('message', '').strip()
+    if message:
+        conn = get_db()
+        with conn.cursor() as cursor:
+            cursor.execute(
+                'INSERT INTO comments (customer_name, message) VALUES (%s, %s)',
+                (session['user_name'], message)
+            )
+        conn.close()
+        flash('Thank you for your sweet feedback!', 'success')
+    return redirect(url_for('shop'))
+
 @app.route('/logout')
 def logout():
     session.clear()
@@ -236,7 +253,7 @@ def admin_dashboard():
         ''')
         recent_orders = cursor.fetchall()
 
-        # Fetch Feedback/Comments
+        # NEW: Fetch Feedback/Comments for the Admin Portal
         cursor.execute('SELECT * FROM comments ORDER BY created_at DESC')
         feedback = cursor.fetchall()
 
@@ -249,7 +266,7 @@ def admin_dashboard():
         qty_row = cursor.fetchone()
         total_cookies_sold = int(qty_row['total_qty']) if qty_row and qty_row['total_qty'] else 0
 
-        # Graph Formatting...
+        # Graph Formatting
         prod_labels, prod_data = [], []
         for key, details in COOKIES.items():
             cursor.execute("SELECT SUM(quantity) as vol FROM orders WHERE cookie_type = %s AND status != 'Cancelled'", (key,))
@@ -281,7 +298,6 @@ def admin_dashboard():
                            time_labels=json.dumps(time_labels),
                            time_data=json.dumps(time_data))
 
-# ── ADMIN DELETE ORDER ──
 @app.route('/admin/delete_order/<int:order_id>', methods=['POST'])
 def admin_delete_order(order_id):
     if not session.get('admin'): return redirect(url_for('admin_login'))
@@ -296,11 +312,26 @@ def admin_delete_order(order_id):
 def add_product():
     if not session.get('admin'): return redirect(url_for('admin_login'))
     name = request.form.get('name')
-    
-    flash(f'Product {name} added to staging!', 'success')
+    flash(f'Product {name} added to staging list!', 'success')
     return redirect(url_for('admin_dashboard'))
 
 @app.route('/admin/update_order/<int:order_id>', methods=['POST'])
 def update_order(order_id):
     if not session.get('admin'): return redirect(url_for('admin_login'))
     new_status = request.form.get('status')
+    delivery_date = request.form.get('delivery_date', 'Not Scheduled Yet')
+    conn = get_db()
+    with conn.cursor() as cursor:
+        cursor.execute('UPDATE orders SET status = %s, delivery_date = %s WHERE id = %s', (new_status, delivery_date, order_id))
+    conn.close()
+    flash(f'Order #{order_id} updated.', 'success')
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/logout')
+def admin_logout():
+    session.pop('admin', None)
+    return redirect(url_for('admin_login'))
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
