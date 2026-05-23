@@ -24,9 +24,9 @@
   .hero-section { 
     background-color: #3b1f0e; 
     color: #faf7f2; 
-    padding: 120px 0; 
+    padding: 120px 0; /* Increased padding for more background space */
     overflow: hidden; 
-    min-height: 65vh; 
+    min-height: 65vh; /* Ensures it covers more of the screen */
     display: flex;
     align-items: center;
   }
@@ -36,7 +36,7 @@
   .hero-text p { font-size: 1.25rem; line-height: 1.8; margin-bottom: 20px; color: #f1ede7; font-weight: 300; }
   .hero-visual { flex: 0.8; display: flex; justify-content: center; align-items: center; }
   .big-cookie { 
-    font-size: 18rem; 
+    font-size: 18rem; /* Scaled up the cookie significantly */
     filter: drop-shadow(0 20px 40px rgba(0,0,0,0.4)); 
     animation: float 6s ease-in-out infinite; 
   }
@@ -46,45 +46,8 @@
     50% { transform: translateY(-30px) rotate(8deg); }
   }
 
-  /* --- Search & Filter Styles --- */
-  .shop-controls {
-    max-width: 1200px;
-    margin: 0 auto 40px;
-    padding: 0 20px;
-    display: flex;
-    gap: 15px;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-  .search-input {
-    flex: 1;
-    min-width: 300px;
-    max-width: 500px;
-    padding: 12px 20px;
-    border: 1px solid #e6dfd5;
-    border-radius: 30px;
-    font-family: 'Jost';
-    font-size: 1rem;
-    outline: none;
-    transition: 0.3s;
-  }
-  .search-input:focus { border-color: #a67c52; box-shadow: 0 0 8px rgba(166,124,82,0.2); }
-  
-  .category-select {
-    padding: 12px 20px;
-    border: 1px solid #e6dfd5;
-    border-radius: 30px;
-    background: #fff;
-    font-family: 'Jost';
-    font-weight: 500;
-    color: #3b1f0e;
-    cursor: pointer;
-    outline: none;
-  }
-
   /* --- Shop Intro --- */
-  .shop-intro { text-align: center; margin: 100px 0 40px; }
+  .shop-intro { text-align: center; margin: 100px 0 60px; }
   .shop-intro p { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: #261206; margin-bottom: 15px; }
   .shop-now-tag { font-weight: 600; text-transform: uppercase; letter-spacing: 0.2em; color: #a67c52; font-size: 1rem; }
 
@@ -101,31 +64,45 @@
   .qty-input { width: 60px; padding: 10px; border: 1px solid #e6dfd5; border-radius: 4px; }
   .btn-order { flex: 1; background: #3b1f0e; color: #fff; border: none; padding: 12px; border-radius: 4px; cursor: pointer; font-weight: 600; text-transform: uppercase; }
 
-  /* --- History & Feedback --- */
+  /* --- History Section --- */
   .history-header { margin-bottom: 30px; border-top: 1px solid #e6dfd5; padding-top: 40px; }
-  .history-header h2 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #261206; }
+  .history-header h2 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #261206; margin-bottom: 5px; }
+  .history-header p { color: #6e5643; font-size: 1rem; }
+  
   .history-card { background: #fff; border: 1px solid #e6dfd5; padding: 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+  .btn-delete { 
+    background: #fff; color: #8c2f1e; border: 1px solid #fee2e2; 
+    padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; 
+    font-weight: 600; text-transform: uppercase; transition: 0.2s;
+    margin-left: 15px;
+  }
+  .btn-delete:hover { background: #fee2e2; }
+  .status-block { display: flex; align-items: center; gap: 15px; }
   .badge { padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; }
   .status-pending { background: #fef3c7; color: #92400e; }
-  
-  /* NEW: Delete Button Styling */
-  .btn-delete-order {
-    background: #fcecea;
-    color: #8c2f1e;
-    border: none;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-weight: bold;
-    margin-left: 15px;
-    transition: 0.2s;
-  }
-  .btn-delete-order:hover { background: #8c2f1e; color: white; }
+  .status-preparing { background: #e0f2fe; color: #0369a1; }
+  .status-delivery { background: #fdf2f8; color: #9d174d; }
+  .status-delivered { background: #dcfce7; color: #166534; }
+  .status-cancelled { background: #f1f5f9; color: #475569; }
 
-  .feedback-section { margin-top: 60px; padding: 40px; background: #fff; border-radius: 12px; border: 1px solid #e6dfd5; }
-  .feedback-textarea { width: 100%; padding: 15px; border: 1px solid #e6dfd5; border-radius: 8px; font-family: 'Jost'; margin-top: 15px; resize: vertical; }
-  .btn-submit-feedback { background: #3b1f0e; color: #fff; border: none; padding: 12px 30px; border-radius: 6px; cursor: pointer; font-weight: 600; margin-top: 15px; }
+  /* --- Feedback --- */
+  .feedback-section { 
+    margin-top: 60px; padding: 40px; background: #fff; border-radius: 12px; 
+    border: 1px solid #e6dfd5; box-shadow: 0 4px 15px rgba(59,31,14,0.02);
+  }
+  .feedback-section h2 { font-family: 'Playfair Display', serif; color: #261206; margin-bottom: 10px; }
+  .feedback-textarea { 
+    width: 100%; padding: 15px; border: 1px solid #e6dfd5; border-radius: 8px; 
+    font-family: 'Jost'; margin-top: 15px; outline: none; transition: 0.3s;
+    resize: vertical;
+  }
+  .feedback-textarea:focus { border-color: #a67c52; }
+  .btn-submit-feedback { 
+    background: #3b1f0e; color: #fff; border: none; padding: 12px 30px; 
+    border-radius: 6px; cursor: pointer; font-weight: 600; margin-top: 15px;
+    transition: 0.3s;
+  }
+  .btn-submit-feedback:hover { background: #594132; }
 </style>
 {% endblock %}
 
@@ -142,8 +119,9 @@
   <div class="hero-container">
     <div class="hero-text">
       <h2>Welcome to Briella's!</h2>
-      <p>Where every batch is homemade with love, care, and the joy of sharing something sweet.</p>
+      <p>Where every batch is homemade with love, care, and the joy of sharing something sweet. What started as a small passion for baking has slowly grown into a business built on warm ovens, late-night baking sessions, and recipes made to feel comforting and familiar.</p>
       <p>We believe the best cookies are the ones that taste homemade — soft, fresh, flavorful, and made with real ingredients you can trust.</p>
+      <p>As a growing small business, every order means so much to us. Your support helps turn a simple dream into something bigger.</p>
     </div>
     <div class="hero-visual">
       <div class="big-cookie">🍪</div>
@@ -151,27 +129,15 @@
   </div>
 </section>
 
-{% if cookies %}
 <div class="shop-intro">
   <p>Take a bite of something homemade, warm, and freshly baked.</p>
   <span class="shop-now-tag">Shop Our Flavors &darr;</span>
 </div>
 
-<div class="shop-controls">
-  <select class="category-select" id="categoryFilter">
-    <option value="all">All Products</option>
-    {% for id, cookie in cookies.items() %}
-    <option value="{{ cookie.name }}">{{ cookie.name }}</option>
-    {% endfor %}
-  </select>
-
-  <input type="text" class="search-input" id="cookieSearch" placeholder="Search for your favorite flavor (e.g. S'mores)...">
-</div>
-
 <div class="shop-container">
-  <div class="menu-grid" id="cookieGrid">
+  <div class="menu-grid">
     {% for id, cookie in cookies.items() %}
-    <div class="cookie-card" data-name="{{ cookie.name | lower }}">
+    <div class="cookie-card">
       <div class="cookie-body">
         <div class="cookie-emoji">{{ cookie.emoji }}</div>
         <h3 class="cookie-title">
@@ -188,11 +154,10 @@
     </div>
     {% endfor %}
   </div>
-{% endif %}
 
-  {% if orders %}
   <div class="history-header">
     <h2>Order History</h2>
+    <p>Check your recent purchases and stay updated on your order status!</p>
   </div>
 
   <div class="history-list">
@@ -200,48 +165,38 @@
     <div class="history-card">
       <div class="order-info">
         <h4 style="margin:0 0 5px 0;">{{ cookies[order.cookie_type]['name'] if order.cookie_type in cookies else order.cookie_type }} (x{{ order.quantity }})</h4>
-        <p style="margin:0; font-size: 0.85rem; color: #8c7667;">Total: ₱{{ "%.2f"|format(order.total_price) }}</p>
+        <p style="margin:0; font-size: 0.85rem; color: #8c7667;">Total: ₱{{ "%.2f"|format(order.total_price) }} — {{ order.created_at }}</p>
       </div>
-      <div class="status-block" style="display: flex; align-items: center;">
-        <span class="badge status-pending">{{ order.status }}</span>
+      <div class="status-block">
+        <span class="badge 
+          {% if order.status == 'Pending' %}status-pending
+          {% elif order.status == 'Preparing' %}status-preparing
+          {% elif order.status == 'Out for Delivery' %}status-delivery
+          {% elif order.status == 'Delivered' %}status-delivered
+          {% else %}status-cancelled{% endif %}">
+          {{ order.status }}
+        </span>
         
-        <form action="{{ url_for('delete_order', order_id=loop.index0) }}" method="POST" style="margin:0;">
-          <button type="submit" class="btn-delete-order" title="Delete Order">×</button>
+        <form action="{{ url_for('delete_order', order_id=order.id) }}" method="POST" style="display:inline;">
+          <button type="submit" class="btn-delete" onclick="return confirm('Are you sure you want to cancel this order?')">Cancel</button>
         </form>
       </div>
     </div>
+    {% else %}
+    <p style="text-align: center; color: #8c7667; padding: 20px;">No orders found yet. Treat yourself to some cookies!</p>
     {% endfor %}
   </div>
-  {% endif %}
 
   <section class="feedback-section">
     <h2>Leave a Comment</h2>
+    <p style="color: #8c7667;">We’d love to hear about your experience with Briella's Cookies!</p>
+    
     <form action="{{ url_for('submit_feedback') }}" method="POST">
         <textarea name="message" rows="4" class="feedback-textarea" placeholder="Write your message here..." required></textarea>
-        <button type="submit" class="btn-submit-feedback">Send Feedback</button>
+        <button type="submit" class="btn-submit-feedback">
+            Send Feedback
+        </button>
     </form>
   </section>
 </div>
-
-<script>
-  const searchBar = document.getElementById('cookieSearch');
-  const categoryFilter = document.getElementById('categoryFilter');
-  const cards = document.querySelectorAll('.cookie-card');
-
-  function filterProducts() {
-    const searchText = searchBar ? searchBar.value.toLowerCase() : '';
-    const selectedCat = categoryFilter ? categoryFilter.value.toLowerCase() : 'all';
-
-    cards.forEach(card => {
-      const name = card.getAttribute('data-name');
-      const matchesSearch = name.includes(searchText);
-      const matchesCategory = (selectedCat === 'all' || name === selectedCat);
-
-      card.style.display = (matchesSearch && matchesCategory) ? 'block' : 'none';
-    });
-  }
-
-  if(searchBar) searchBar.addEventListener('input', filterProducts);
-  if(categoryFilter) categoryFilter.addEventListener('change', filterProducts);
-</script>
 {% endblock %}
