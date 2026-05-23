@@ -48,7 +48,6 @@
 
   /* --- Shop Intro & CTA Area --- */
   .shop-intro { text-align: center; margin: 100px 0 30px; }
-  /* Updated Intro font to be cleaner/less straining */
   .shop-intro p { font-family: 'Jost', sans-serif; font-weight: 500; font-size: 1.8rem; color: #261206; margin-bottom: 5px; letter-spacing: -0.02em; }
   .shop-now-tag { font-weight: 600; text-transform: uppercase; letter-spacing: 0.2em; color: #a67c52; font-size: 1rem; cursor: pointer; }
   
@@ -120,7 +119,7 @@
   .status-pending { background: #fef3c7; color: #92400e; }
   .empty-history-note { text-align: center; color: #8c7667; padding: 40px; font-style: italic; font-size: 1.1rem; }
 
-  /* --- Feedback Section (Always Visible) --- */
+  /* --- Feedback Section --- */
   .feedback-section { max-width: 1200px; margin: 40px auto 80px; padding: 40px; background: #fff; border-radius: 12px; border: 1px solid #e6dfd5; }
   .feedback-section h2 { font-family: 'Playfair Display', serif; color: #261206; margin-bottom: 5px; }
   .feedback-subtitle { color: #6e5643; margin-bottom: 20px; font-size: 1rem; }
@@ -143,7 +142,7 @@
   <div class="hero-container">
     <div class="hero-text">
       <h2>Welcome to Briella's!</h2>
-      <p>Where every batch is homemade with love, care, and the joy of sharing something sweet. What started as a small passion for baking has slowly grown into a business built on warm ovens, late-night baking sessions, and recipes made to feel comforting and familiar.</p>
+      <p>Where every batch is homemade with love, care, and the joy of sharing something sweet...</p>
       <p>We believe the best cookies are the ones that taste homemade — soft, fresh, flavorful, and made with real ingredients you can trust.</p>
       <p>As a growing small business, every order means so much to us. Your support helps turn a simple dream into something bigger.</p>
     </div>
@@ -170,7 +169,7 @@
         {% for order in orders %}
         <div class="history-card">
           <div>
-            <h4 style="margin:0 0 5px 0;">{{ cookies[order.cookie_type]['name'] if order.cookie_type in cookies else order.cookie_type }} (x{{ order.quantity }})</h4>
+            <h4 style="margin:0 0 5px 0;">{{ order.cookie_type }} (x{{ order.quantity }})</h4>
             <p style="margin:0; font-size: 0.85rem; color: #8c7667;">Total: ₱{{ "%.2f"|format(order.total_price) }} — {{ order.created_at }}</p>
           </div>
           <div style="display: flex; align-items: center; gap: 15px;">
@@ -196,25 +195,25 @@
     <div class="product-dropdown-wrapper">
       <button class="dropdown-btn" onclick="toggleDropdown()">🧺</button>
       <div id="productDropdown" class="dropdown-content">
-        {% for id, cookie in cookies.items() %}
-        <a onclick="scrollToCookie('cookie-{{ id }}')">{{ cookie.name }}</a>
+        {% for cookie in cookies %}
+        <a onclick="scrollToCookie('cookie-{{ cookie.id }}')">{{ cookie.name }}</a>
         {% endfor %}
       </div>
     </div>
   </div>
 
   <div class="menu-grid" id="menuGrid">
-    {% for id, cookie in cookies.items() %}
-    <div class="cookie-card" id="cookie-{{ id }}" data-name="{{ cookie.name|lower }}">
+    {% for cookie in cookies %}
+    <div class="cookie-card" id="cookie-{{ cookie.id }}" data-name="{{ cookie.name|lower }}">
       <div class="cookie-body">
         <div class="cookie-emoji">{{ cookie.emoji }}</div>
         <h3 class="cookie-title">
           {{ cookie.name }}
-          <span class="cookie-price">₱{{ cookie.price }}</span>
+          <span class="cookie-price">₱{{ "%.2f"|format(cookie.price) }}</span>
         </h3>
-        <p class="cookie-desc">{{ cookie.desc }}</p>
+        <p class="cookie-desc">{{ cookie.description }}</p>
         <form method="POST" action="{{ url_for('order') }}" class="order-form">
-          <input type="hidden" name="cookie_type" value="{{ id }}">
+          <input type="hidden" name="product_id" value="{{ cookie.id }}">
           <input type="number" name="quantity" class="qty-input" value="1" min="1" required>
           <button type="submit" class="btn-order">Place Cookie Order</button>
         </form>
@@ -287,7 +286,6 @@
     });
   });
 
-  // Close dropdown if user clicks outside
   window.onclick = function(event) {
     if (!event.target.matches('.dropdown-btn')) {
       const dropdowns = document.getElementsByClassName("dropdown-content");
