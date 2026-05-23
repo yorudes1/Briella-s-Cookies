@@ -5,14 +5,10 @@
 <style>
   body { background: #faf7f2; color: #3b1f0e; font-family: 'Jost', sans-serif; margin: 0; }
   
-  /* --- Navigation Header (Now at the Top) --- */
+  /* --- Navigation Header --- */
   .shop-header { 
-    max-width: 1200px;
-    margin: 0 auto;
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    padding: 20px;
+    max-width: 1200px; margin: 0 auto; display: flex; 
+    justify-content: space-between; align-items: center; padding: 20px;
   }
   .shop-header h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #261206; margin: 0; }
   .shop-header h1 span { font-weight: 300; font-style: italic; }
@@ -24,92 +20,53 @@
   }
   .btn-logout:hover { background: #8c2f1e; color: #fff; }
 
-  /* --- Split Hero Section --- */
-  .hero-section {
-    background-color: #3b1f0e;
-    color: #faf7f2;
-    padding: 60px 0;
-    overflow: hidden;
-  }
-
-  .hero-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    padding: 0 20px;
-    gap: 40px;
-  }
-
-  .hero-text {
-    flex: 1;
-    text-align: left;
-  }
-
-  .hero-text h2 {
-    font-family: 'Playfair Display', serif;
-    font-size: 2.8rem;
-    margin-bottom: 20px;
-    color: #e6dfd5;
-  }
-
-  .hero-text p {
-    font-size: 1.05rem;
-    line-height: 1.7;
-    margin-bottom: 15px;
-    color: #f1ede7;
-  }
-
-  .hero-visual {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-  }
-
-  /* The "Kinda Big" Cookie */
-  .big-cookie {
-    font-size: 15rem; /* Large size as requested */
-    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
-    user-select: none;
-    animation: float 6s ease-in-out infinite;
-  }
+  /* --- Hero Section --- */
+  .hero-section { background-color: #3b1f0e; color: #faf7f2; padding: 60px 0; overflow: hidden; }
+  .hero-container { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; padding: 0 20px; gap: 40px; }
+  .hero-text { flex: 1.2; text-align: left; }
+  .hero-text h2 { font-family: 'Playfair Display', serif; font-size: 2.8rem; margin-bottom: 20px; color: #e6dfd5; }
+  .hero-text p { font-size: 1.05rem; line-height: 1.7; margin-bottom: 15px; color: #f1ede7; }
+  .hero-visual { flex: 0.8; display: flex; justify-content: center; align-items: center; }
+  .big-cookie { font-size: 12rem; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3)); animation: float 6s ease-in-out infinite; }
 
   @keyframes float {
-    0% { transform: translateY(0px) rotate(0deg); }
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
     50% { transform: translateY(-20px) rotate(5deg); }
-    100% { transform: translateY(0px) rotate(0deg); }
   }
 
-  /* --- Shop Grid & Cards --- */
-  .shop-container { max-width: 1200px; margin: 0 auto; padding: 60px 20px; }
-  
-  .menu-grid { 
-    display: grid; 
-    grid-template-columns: repeat(auto-fit, min-max(340px, 1fr)); 
-    gap: 32px; 
-    margin-bottom: 80px; 
-  }
+  /* --- Shop Intro Text --- */
+  .shop-intro { text-align: center; margin: 60px 0 40px; }
+  .shop-intro p { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #261206; margin-bottom: 10px; }
+  .shop-now-tag { font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: #a67c52; font-size: 0.9rem; }
 
-  .cookie-card { 
-    background: #fff; border: 1px solid #e6dfd5; border-radius: 12px; 
-    overflow: hidden; box-shadow: 0 4px 15px rgba(59,31,14,0.05);
-  }
-  
+  /* --- Menu Grid --- */
+  .shop-container { max-width: 1200px; margin: 0 auto; padding: 0 20px 80px; }
+  .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 32px; margin-bottom: 80px; }
+  .cookie-card { background: #fff; border: 1px solid #e6dfd5; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(59,31,14,0.05); transition: 0.3s; }
+  .cookie-card:hover { transform: translateY(-5px); }
   .cookie-body { padding: 30px; }
   .cookie-emoji { font-size: 3rem; margin-bottom: 10px; }
-  .cookie-title { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: #261206; display: flex; justify-content: space-between; align-items: center; }
+  .cookie-title { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: #261206; display: flex; justify-content: space-between; }
   .cookie-price { color: #a67c52; }
-
   .order-form { display: flex; gap: 10px; margin-top: 20px; }
   .qty-input { width: 60px; padding: 10px; border: 1px solid #e6dfd5; border-radius: 4px; }
   .btn-order { flex: 1; background: #3b1f0e; color: #fff; border: none; padding: 12px; border-radius: 4px; cursor: pointer; font-weight: 600; text-transform: uppercase; }
 
-  /* History Styles */
-  .history-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 20px; }
-  .history-card { background: #fff; border: 1px solid #e6dfd5; padding: 20px; margin-bottom: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
-  .badge { padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
+  /* --- History Section --- */
+  .history-header { margin-bottom: 30px; border-top: 1px solid #e6dfd5; padding-top: 40px; }
+  .history-header h2 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #261206; margin-bottom: 5px; }
+  .history-header p { color: #6e5643; font-size: 1rem; }
+  
+  .history-card { background: #fff; border: 1px solid #e6dfd5; padding: 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+  .btn-delete { 
+    background: #fff; color: #8c2f1e; border: 1px solid #fee2e2; 
+    padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; 
+    font-weight: 600; text-transform: uppercase; transition: 0.2s;
+    margin-left: 15px;
+  }
+  .btn-delete:hover { background: #fee2e2; }
+  .status-block { display: flex; align-items: center; gap: 15px; }
+  .badge { padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; }
   .status-pending { background: #fef3c7; color: #92400e; }
 </style>
 {% endblock %}
@@ -127,26 +84,20 @@
   <div class="hero-container">
     <div class="hero-text">
       <h2>Welcome to Briella's!</h2>
-      <p>
-        Where every batch is homemade with love, care, and the joy of sharing something sweet. 
-        What started as a small passion for baking has slowly grown into a business built on 
-        warm ovens, late-night baking sessions, and recipes made to feel comforting and familiar.
-      </p>
-      <p>
-        We believe the best cookies are the ones that taste homemade — soft, fresh, flavorful, 
-        and made with real ingredients you can trust. From classic favorites to special creations, 
-        each cookie is baked in small batches to make sure every bite feels special.
-      </p>
-      <p>
-        As a growing small business, every order means so much to us. Your support helps turn 
-        a simple dream into something bigger.
-      </p>
+      <p>Where every batch is homemade with love, care, and the joy of sharing something sweet. What started as a small passion for baking has slowly grown into a business built on warm ovens, late-night baking sessions, and recipes made to feel comforting and familiar.</p>
+      <p>We believe the best cookies are the ones that taste homemade — soft, fresh, flavorful, and made with real ingredients you can trust.</p>
+      <p>As a growing small business, every order means so much to us. Your support helps turn a simple dream into something bigger.</p>
     </div>
     <div class="hero-visual">
       <div class="big-cookie">🍪</div>
     </div>
   </div>
 </section>
+
+<div class="shop-intro">
+  <p>Take a bite of something homemade, warm, and freshly baked.</p>
+  <span class="shop-now-tag">Shop Now &rarr;</span>
+</div>
 
 <div class="shop-container">
   <div class="menu-grid">
@@ -159,7 +110,6 @@
           <span class="cookie-price">₱{{ cookie.price }}</span>
         </h3>
         <p class="cookie-desc">{{ cookie.desc }}</p>
-        
         <form method="POST" action="{{ url_for('order') }}" class="order-form">
           <input type="hidden" name="cookie_type" value="{{ id }}">
           <input type="number" name="quantity" class="qty-input" value="1" min="1" required>
@@ -170,13 +120,17 @@
     {% endfor %}
   </div>
 
-  <h2 class="history-title">Your Order History Tracker</h2>
+  <div class="history-header">
+    <h2>Order History</h2>
+    <p>Check your recent purchases and stay updated on your order status!</p>
+  </div>
+
   <div class="history-list">
     {% for order in orders %}
     <div class="history-card">
       <div class="order-info">
-        <h4>{{ cookies[order.cookie_type]['name'] if order.cookie_type in cookies else order.cookie_type }} (x{{ order.quantity }})</h4>
-        <p>Total Charge: ₱{{ "%.2f"|format(order.total_price) }} — {{ order.created_at }}</p>
+        <h4 style="margin:0 0 5px 0;">{{ cookies[order.cookie_type]['name'] if order.cookie_type in cookies else order.cookie_type }} (x{{ order.quantity }})</h4>
+        <p style="margin:0; font-size: 0.85rem; color: #8c7667;">Total: ₱{{ "%.2f"|format(order.total_price) }} — {{ order.created_at }}</p>
       </div>
       <div class="status-block">
         <span class="badge 
@@ -187,6 +141,10 @@
           {% else %}status-cancelled{% endif %}">
           {{ order.status }}
         </span>
+        
+        <form action="{{ url_for('delete_order', order_id=order.id) }}" method="POST" style="display:inline;">
+          <button type="submit" class="btn-delete" onclick="return confirm('Are you sure you want to cancel this order?')">Cancel</button>
+        </form>
       </div>
     </div>
     {% endfor %}
