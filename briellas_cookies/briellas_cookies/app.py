@@ -171,7 +171,7 @@ def order():
     flash(f'Order placed! {quantity}x {COOKIES[cookie_type]["name"]}', 'success')
     return redirect(url_for('shop'))
 
-# ── ADDED REVISION: DELETE ORDER ROUTE ──
+# ── DELETE ORDER ROUTE ──
 @app.route('/delete_order/<int:order_id>', methods=['POST'])
 def delete_order(order_id):
     if 'user_id' not in session:
@@ -180,7 +180,7 @@ def delete_order(order_id):
     conn = get_db()
     try:
         with conn.cursor() as cursor:
-            # We verify the customer_id so users can only delete their own orders
+         
             cursor.execute(
                 'DELETE FROM orders WHERE id = %s AND customer_id = %s', 
                 (order_id, session['user_id'])
@@ -192,6 +192,24 @@ def delete_order(order_id):
         conn.close()
     
     return redirect(url_for('shop'))
+
+@app.route('/admin/delete_order/<int:order_id>', methods=['POST'])
+def admin_delete_order(order_id):
+    if not session.get('admin'): return redirect(url_for('admin_login'))
+    conn = get_db()
+    with conn.cursor() as cursor:
+        cursor.execute('DELETE FROM orders WHERE id = %s', (order_id,))
+    conn.close()
+    flash(f'Order #{order_id} has been permanently deleted.', 'success')
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/add_product', methods=['POST'])
+def add_product():
+    if not session.get('admin'): return redirect(url_for('admin_login'))
+    name = request.form.get('name')
+    price = request.form.get('price')
+    flash(f'Product "{name}" added! (Note: Connect this to your DB to reflect in shop)', 'success')
+    return redirect(url_for('admin_dashboard'))
 
 @app.route('/logout')
 def logout():
