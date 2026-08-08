@@ -21,6 +21,7 @@
     font-family: 'Jost', sans-serif; 
     margin: 0; 
     scroll-behavior: smooth; 
+    overflow-x: hidden;
   }
 
   /* --- Navigation Header --- */
@@ -241,12 +242,65 @@
   /* --- Today's Choice Section --- */
   .todays-choice { max-width: 1100px; margin: 50px auto; padding: 0 20px; }
 
-  /* --- About & Brand Facts Section --- */
-  .facts-section { max-width: 1100px; margin: 60px auto; padding: 40px; background: #fff; border-radius: 12px; border: 1px solid var(--border-color); display: flex; gap: 40px; align-items: center; }
-  .facts-text { flex: 1; }
-  .facts-text p { color: var(--text-muted); line-height: 1.8; font-size: 0.98rem; }
-  .facts-images { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-  .facts-images img { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; background-color: #f2f2f2; }
+  /* --- About & Brand Facts Section (Full Width Cookie Tone) --- */
+  .facts-section { 
+    width: 100vw; 
+    position: relative; 
+    left: 50%; 
+    right: 50%; 
+    margin-left: -50vw; 
+    margin-right: -50vw; 
+    background-color: var(--hero-bg); 
+    box-sizing: border-box; 
+    padding: 70px 50px; 
+    border-top: 1px solid var(--border-color); 
+    border-bottom: 1px solid var(--border-color); 
+    margin-top: 60px;
+    margin-bottom: 60px;
+  }
+  .facts-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    gap: 60px;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .facts-text { flex: 1.2; }
+  .about-title-serif {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--dark-brown);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin: 0 0 20px 0;
+    line-height: 1.15;
+  }
+  .facts-text p { 
+    color: var(--dark-brown); 
+    line-height: 1.8; 
+    font-size: 1.05rem; 
+    margin-bottom: 15px;
+  }
+  .facts-image-wrapper { 
+    flex: 0.8; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+  }
+  .facts-cookie-img { 
+    width: 100%; 
+    max-width: 420px; 
+    height: 400px; 
+    object-fit: cover; 
+    border-radius: 12px; 
+    box-shadow: 0 15px 35px rgba(51, 29, 13, 0.18); 
+    transition: transform 0.3s ease;
+  }
+  .facts-cookie-img:hover {
+    transform: scale(1.02);
+  }
 
   /* --- Best Sellers Section --- */
   .products-section { max-width: 1100px; margin: 60px auto; padding: 0 20px; }
@@ -413,16 +467,15 @@
 
 <!-- About Us & Brand Facts Section -->
 <section class="facts-section" id="about-us">
-  <div class="facts-text">
-    <div class="section-header-left">
-      <h2 class="section-title-script">About Briella's Cookies</h2>
+  <div class="facts-container">
+    <div class="facts-text">
+      <h2 class="about-title-serif">ABOUT BRIELLA'S COOKIES</h2>
+      <p>Where every batch is homemade with love, care, and the joy of sharing something sweet. What started as a small passion for baking has slowly grown into a business built on warm ovens, late-night baking sessions, and recipes made to feel comforting and familiar.</p>
+      <p>We believe the best cookies are the ones that taste homemade — soft, fresh, flavorful, and made with real ingredients you can trust.</p>
     </div>
-    <p>Where every batch is homemade with love, care, and the joy of sharing something sweet. What started as a small passion for baking has slowly grown into a business built on warm ovens, late-night baking sessions, and recipes made to feel comforting and familiar.</p>
-    <p>We believe the best cookies are the ones that taste homemade — soft, fresh, flavorful, and made with real ingredients you can trust.</p>
-  </div>
-  <div class="facts-images">
-    <img src="your-image-here.jpg" alt="Baking setup">
-    <img src="your-image-here.jpg" alt="Fresh baked cookies">
+    <div class="facts-image-wrapper">
+      <img src="your-image-here.jpg" alt="Briella's Fresh Homemade Cookies" class="facts-cookie-img">
+    </div>
   </div>
 </section>
 
