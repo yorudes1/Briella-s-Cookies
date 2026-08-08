@@ -23,16 +23,19 @@
 
   /* --- Navigation Header --- */
   .shop-header { 
-    max-width: 1200px; 
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     margin: 0 auto; 
     display: flex; 
     justify-content: space-between; 
     align-items: center; 
-    padding: 20px 30px;
+    padding: 20px 50px;
   }
-  .nav-left { display: flex; align-items: center; gap: 40px; }
   .brand-logo { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--dark-brown); text-decoration: none; font-weight: bold; }
   .brand-logo span { font-weight: 300; font-style: italic; }
+  
+  .nav-right-group { display: flex; align-items: center; gap: 40px; }
   .nav-links { display: flex; gap: 24px; list-style: none; margin: 0; padding: 0; }
   .nav-links a { color: var(--dark-brown); text-decoration: none; font-size: 0.95rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s; }
   .nav-links a:hover { color: var(--accent-gold); }
@@ -49,17 +52,47 @@
   /* --- Hero Section --- */
   .hero-section { 
     background-color: var(--hero-bg); 
-    padding: 60px 20px; 
-    text-align: center;
+    padding: 60px 50px; 
     border-bottom: 1px solid var(--border-color);
   }
-  .hero-container { max-width: 1100px; margin: 0 auto; }
-  .hero-images { display: flex; justify-content: center; align-items: center; gap: 40px; margin-bottom: 25px; flex-wrap: wrap; }
-  .hero-img-main { width: 280px; height: 200px; object-fit: cover; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
-  .hero-img-secondary { width: 200px; height: 180px; object-fit: cover; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
-  
-  .hero-title { font-family: 'Playfair Display', serif; font-size: 3.2rem; color: var(--dark-brown); margin: 10px 0 15px; font-style: italic; }
-  .hero-quote { font-style: italic; color: var(--text-muted); max-width: 650px; margin: 0 auto 10px; font-size: 1.05rem; line-height: 1.6; }
+  .hero-container { 
+    max-width: 1100px; 
+    margin: 0 auto; 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    gap: 50px; 
+  }
+  .hero-left { 
+    flex: 1; 
+    text-align: left; 
+  }
+  .hero-title { 
+    font-family: 'Playfair Display', serif; 
+    font-size: 3.2rem; 
+    color: var(--dark-brown); 
+    margin: 0 0 20px 0; 
+    font-style: italic; 
+    line-height: 1.2;
+  }
+  .hero-quote { 
+    color: var(--dark-brown); 
+    font-size: 1.15rem; 
+    line-height: 1.7; 
+    margin: 0;
+  }
+  .hero-right { 
+    flex: 1; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+  }
+  .hero-cookie-img { 
+    max-width: 100%; 
+    max-height: 380px; 
+    object-fit: contain; 
+    filter: drop-shadow(0px 12px 24px rgba(51, 29, 13, 0.18)); 
+  }
 
   /* --- Banners Section --- */
   .banners-section { max-width: 1100px; margin: 40px auto; display: grid; grid-template-columns: 1fr 1fr; gap: 25px; padding: 0 20px; }
@@ -212,29 +245,32 @@
 
 <!-- Header / Navigation Bar -->
 <header class="shop-header">
-  <div class="nav-left">
-    <a href="#" class="brand-logo">Briella's <span>Cookies</span></a>
+  <a href="#" class="brand-logo">Briella's <span>Cookies</span></a>
+  
+  <div class="nav-right-group">
     <ul class="nav-links">
       <li><a href="#about-us">About Us</a></li>
       <li><a href="#products">Products</a></li>
       <li><a href="javascript:void(0)" onclick="openOrderModal()">Order</a></li>
     </ul>
-  </div>
-  <div class="nav-right">
-    <span class="user-greet">Hello, <strong>{{ session['user_name'] }}</strong>!</span>
-    <a href="{{ url_for('logout') }}" class="btn-logout">Sign Out</a>
+    <div class="nav-right">
+      <span class="user-greet">Hello, <strong>{{ session['user_name'] }}</strong>!</span>
+      <a href="{{ url_for('logout') }}" class="btn-logout">Sign Out</a>
+    </div>
   </div>
 </header>
 
 <!-- Hero Section -->
 <section class="hero-section">
   <div class="hero-container">
-    <div class="hero-images">
-      <img src="https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=600&q=80" class="hero-img-main" alt="Chocolate Chip Cookie">
-      <img src="https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&w=600&q=80" class="hero-img-secondary" alt="Smores Cookie Stack">
+    <div class="hero-left">
+      <h1 class="hero-title">Welcome to Briella's Cookies</h1>
+      <p class="hero-quote">We believe the best cookies are the ones that taste homemade — soft, fresh, flavorful, and made with real ingredients you can trust.</p>
     </div>
-    <h1 class="hero-title">Welcome to Briella's Cookies</h1>
-    <p class="hero-quote">"If you love cookie dough, you will love these cookies. It tastes as good as it looks. Its pure love and happiness that puts a smile on your face."</p>
+    <div class="hero-right">
+      <!-- Replace 'cookie_cutout.png' with your background-removed cookie image file -->
+      <img src="{{ url_for('static', filename='images/cookie_cutout.png') }}" class="hero-cookie-img" alt="Briella's Fresh Homemade Cookies">
+    </div>
   </div>
 </section>
 
