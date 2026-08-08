@@ -2,6 +2,8 @@
 {% block title %}Storefront Menu — Briella's Cookies{% endblock %}
 
 {% block extra_styles %}
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+
 <style>
   :root {
     --bg-cream: #f4e6d4;      /* Darkened background tone */
@@ -113,8 +115,8 @@
     position: relative; height: 220px; border-radius: 10px; overflow: hidden; 
     display: flex; align-items: center; padding: 30px; box-shadow: 0 6px 18px rgba(0,0,0,0.08); 
   }
-  .banner-1 { background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&w=800&q=80') center/cover; }
-  .banner-2 { background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?auto=format&fit=crop&w=800&q=80') center/cover; }
+  .banner-1 { background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('your-image-here.jpg') center/cover; }
+  .banner-2 { background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('your-image-here.jpg') center/cover; }
   .banner-content { color: #fff; z-index: 2; }
   .banner-content h3 { font-family: 'Playfair Display', serif; font-size: 2rem; margin: 0 0 15px 0; }
   .btn-banner { 
@@ -161,6 +163,76 @@
   }
   .dropdown-content a:hover { background: var(--bg-cream); color: var(--accent-gold); padding-left: 25px; }
 
+  /* --- Left-Aligned Cursive Section Titles --- */
+  .section-header-left {
+    text-align: left;
+    margin-bottom: 20px;
+  }
+  .section-title-script {
+    font-family: 'Great Vibes', cursive;
+    font-size: 3.5rem;
+    font-weight: 400;
+    color: var(--dark-brown);
+    margin: 0;
+    line-height: 1.1;
+  }
+  .section-subtitle-left {
+    text-align: left;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-top: 5px;
+    font-style: italic;
+  }
+
+  /* --- Reusable Horizontal Scroll Container --- */
+  .horizontal-scroll-container { 
+    display: flex; 
+    gap: 20px; 
+    overflow-x: auto; 
+    padding: 10px 5px 20px 5px; 
+    scroll-snap-type: x mandatory; 
+    -webkit-overflow-scrolling: touch; 
+    scroll-behavior: smooth;
+  }
+  .horizontal-scroll-container::-webkit-scrollbar { height: 8px; }
+  .horizontal-scroll-container::-webkit-scrollbar-thumb { background: var(--accent-gold); border-radius: 10px; }
+  .horizontal-scroll-container::-webkit-scrollbar-track { background: #d6bca8; border-radius: 10px; }
+
+  .scroll-card, .product-card { 
+    min-width: 220px; 
+    max-width: 220px;
+    flex: 0 0 auto;
+    background: #fff; 
+    border-radius: 12px; 
+    border: 1px solid var(--border-color); 
+    padding: 16px; 
+    text-align: center; 
+    scroll-snap-align: start; 
+    box-sizing: border-box;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  }
+  .scroll-card img, .product-card img { 
+    width: 100%; 
+    height: 150px; 
+    object-fit: cover; 
+    border-radius: 8px; 
+    margin-bottom: 12px; 
+    background-color: #f2f2f2;
+  }
+  .scroll-card h4, .product-title { 
+    font-family: 'Jost', sans-serif; 
+    font-size: 1.1rem; 
+    font-weight: 600;
+    margin: 5px 0; 
+    color: var(--dark-brown);
+  }
+  .scroll-card .price, .product-price { 
+    color: var(--accent-gold); 
+    font-weight: bold; 
+    font-size: 1.05rem;
+    margin-bottom: 10px; 
+  }
+
   /* --- History Styling --- */
   #historySection { display: none; margin-top: 20px; }
   .shop-container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
@@ -170,46 +242,18 @@
   .status-pending { background: #fef3c7; color: #92400e; }
   .empty-history-note { text-align: center; color: var(--text-muted); padding: 40px; font-style: italic; font-size: 1.1rem; }
 
-  /* --- Today's Choice Horizontal Scroll Section --- */
+  /* --- Today's Choice Section --- */
   .todays-choice { max-width: 1100px; margin: 50px auto; padding: 0 20px; }
-  .section-heading { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: var(--dark-brown); margin-bottom: 5px; text-align: center; }
-  .section-subheading { text-align: center; color: var(--text-muted); font-size: 0.95rem; margin-bottom: 30px; font-style: italic; }
-  
-  .horizontal-scroll { 
-    display: flex; gap: 20px; overflow-x: auto; padding-bottom: 20px; 
-    scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; 
-  }
-  .horizontal-scroll::-webkit-scrollbar { height: 6px; }
-  .horizontal-scroll::-webkit-scrollbar-thumb { background: var(--accent-gold); border-radius: 10px; }
-  .horizontal-scroll::-webkit-scrollbar-track { background: #d6bca8; }
-
-  .scroll-card { 
-    min-width: 220px; background: #fff; border-radius: 8px; border: 1px solid var(--border-color); 
-    padding: 15px; text-align: center; scroll-snap-align: start; flex-shrink: 0; 
-  }
-  .scroll-card img { width: 100%; height: 140px; object-fit: cover; border-radius: 6px; margin-bottom: 12px; }
-  .scroll-card h4 { font-family: 'Playfair Display', serif; margin: 5px 0; font-size: 1.1rem; }
-  .scroll-card .price { color: var(--accent-gold); font-weight: bold; margin-bottom: 10px; }
 
   /* --- About & Brand Facts Section --- */
   .facts-section { max-width: 1100px; margin: 60px auto; padding: 40px; background: #fff; border-radius: 12px; border: 1px solid var(--border-color); display: flex; gap: 40px; align-items: center; }
   .facts-text { flex: 1; }
   .facts-text p { color: var(--text-muted); line-height: 1.8; font-size: 0.98rem; }
   .facts-images { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-  .facts-images img { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; }
+  .facts-images img { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; background-color: #f2f2f2; }
 
-  /* --- Best Sellers Product Grid Section --- */
+  /* --- Best Sellers Section --- */
   .products-section { max-width: 1100px; margin: 60px auto; padding: 0 20px; }
-  .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 25px; margin-top: 30px; }
-  .product-card { background: #fff; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; padding: 15px; text-align: center; transition: 0.3s; }
-  .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-  .product-card img { width: 100%; height: 180px; object-fit: cover; border-radius: 6px; }
-  .product-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; margin: 12px 0 5px; }
-  .product-price { color: var(--accent-gold); font-weight: bold; font-size: 1.1rem; margin-bottom: 12px; }
-
-  /* --- Inline Dynamic Order Form --- */
-  .order-form-inline { display: flex; gap: 8px; margin-top: 15px; }
-  .qty-input { width: 55px; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; text-align: center; }
 
   /* --- Customer Comments Section --- */
   .comments-section { max-width: 1100px; margin: 60px auto; padding: 0 20px; }
@@ -239,8 +283,8 @@
 
   /* --- Common Buttons --- */
   .btn-primary { 
-    background: var(--dark-brown); color: #fff; border: none; padding: 12px 24px; 
-    border-radius: 4px; cursor: pointer; font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; transition: 0.3s; width: 100%;
+    background: var(--dark-brown); color: #fff; border: none; padding: 10px 20px; 
+    border-radius: 6px; cursor: pointer; font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; transition: 0.3s; width: 100%;
   }
   .btn-primary:hover { background: #4a2d18; }
 
@@ -281,10 +325,7 @@
       <p class="hero-quote">We believe the best cookies are the ones that taste homemade — soft, fresh, flavorful, and made with real ingredients you can trust.</p>
     </div>
     <div class="hero-right">
-      <img src="{{ url_for('static', filename='images/hero_cookies.jpg') }}" 
-           onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&w=800&q=80';"
-           class="hero-cookie-img" 
-           alt="Briella's Fresh Homemade Cookies">
+      <img src="your-image-here.jpg" class="hero-cookie-img" alt="Briella's Fresh Homemade Cookies">
     </div>
   </div>
 </section>
@@ -342,13 +383,15 @@
 
 <!-- Today's Choice Horizontal Slider Section -->
 <section class="todays-choice">
-  <h2 class="section-heading">Today's Choice</h2>
-  <div class="section-subheading">Make your day sweeter with our daily picks!</div>
+  <div class="section-header-left">
+    <h2 class="section-title-script">Today's Choice</h2>
+    <div class="section-subtitle-left">Make your day sweeter with our daily picks!</div>
+  </div>
   
-  <div class="horizontal-scroll">
+  <div class="horizontal-scroll-container">
     {% for id, cookie in cookies.items() %}
     <div class="scroll-card">
-      <img src="{{ cookie.image }}" alt="{{ cookie.name }}">
+      <img src="your-image-here.jpg" alt="{{ cookie.name }}">
       <h4>{{ cookie.name }}</h4>
       <div class="price">₱{{ cookie.price }}</div>
       <button class="btn-primary" onclick="openOrderModal('{{ id }}')">Select</button>
@@ -374,34 +417,32 @@
 <!-- About Us & Brand Facts Section -->
 <section class="facts-section" id="about-us">
   <div class="facts-text">
-    <h2 class="section-heading" style="text-align: left;">About Briella's Cookies</h2>
+    <div class="section-header-left">
+      <h2 class="section-title-script">About Briella's Cookies</h2>
+    </div>
     <p>Where every batch is homemade with love, care, and the joy of sharing something sweet. What started as a small passion for baking has slowly grown into a business built on warm ovens, late-night baking sessions, and recipes made to feel comforting and familiar.</p>
     <p>We believe the best cookies are the ones that taste homemade — soft, fresh, flavorful, and made with real ingredients you can trust.</p>
   </div>
   <div class="facts-images">
-    <img src="https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?auto=format&fit=crop&w=600&q=80" alt="Baking setup">
-    <img src="https://images.unsplash.com/photo-1618923850107-d1a234d7a736?auto=format&fit=crop&w=600&q=80" alt="Fresh baked cookies">
+    <img src="your-image-here.jpg" alt="Baking setup">
+    <img src="your-image-here.jpg" alt="Fresh baked cookies">
   </div>
 </section>
 
-<!-- Best Sellers Product Grid Section -->
+<!-- Best Sellers Horizontal Scroll Section -->
 <section class="products-section" id="products">
-  <h2 class="section-heading">Best Sellers</h2>
-  <div class="section-subheading">Handcrafted daily using organic ingredients</div>
+  <div class="section-header-left">
+    <h2 class="section-title-script">Best Sellers</h2>
+    <div class="section-subtitle-left">Handcrafted daily using organic ingredients</div>
+  </div>
 
-  <div class="products-grid" id="menuGrid">
+  <div class="horizontal-scroll-container" id="menuGrid">
     {% for id, cookie in cookies.items() %}
     <div class="product-card cookie-card" id="cookie-{{ id }}" data-name="{{ cookie.name|lower }}">
-      <img src="{{ cookie.image }}" alt="{{ cookie.name }}">
+      <img src="your-image-here.jpg" alt="{{ cookie.name }}">
       <div class="product-title">{{ cookie.name }}</div>
       <div class="product-price">₱{{ cookie.price }}</div>
       <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">{{ cookie.desc }}</p>
-      
-      <form method="POST" action="{{ url_for('order') }}" class="order-form-inline">
-        <input type="hidden" name="cookie_type" value="{{ id }}">
-        <input type="number" name="quantity" class="qty-input" value="1" min="1" required>
-        <button type="submit" class="btn-primary">Order Direct</button>
-      </form>
     </div>
     {% endfor %}
   </div>
@@ -409,8 +450,8 @@
 
 <!-- Customer Comments Section -->
 <section class="comments-section">
-  <h2 class="section-heading">Customer Reviews</h2>
-  <div class="section-subheading">See what sweet things our customers are saying</div>
+  <h2 class="section-heading" style="font-family: 'Playfair Display', serif; text-align: center; font-size: 2.2rem;">Customer Reviews</h2>
+  <div style="text-align: center; color: var(--text-muted); font-size: 0.95rem; margin-bottom: 30px; font-style: italic;">See what sweet things our customers are saying</div>
 
   {% if comments %}
   <div class="comments-grid">
@@ -439,19 +480,9 @@
     <h3 style="font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-top: 0;">Place Your Order</h3>
     
     <form action="{{ url_for('order') }}" method="POST">
-      <div class="form-group">
-        <label for="cookie_type">Select Cookie</label>
-        <select name="cookie_type" id="cookie_type" required>
-          {% for id, cookie in cookies.items() %}
-          <option value="{{ id }}">{{ cookie.name }} - ₱{{ cookie.price }}</option>
-          {% endfor %}
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="quantity">Quantity</label>
-        <input type="number" name="quantity" id="quantity" value="1" min="1" required>
-      </div>
+      <!-- Hidden cookie selection and quantity for Flask backend processing -->
+      <input type="hidden" name="cookie_type" id="cookie_type" value="">
+      <input type="hidden" name="quantity" id="quantity" value="1">
 
       <div class="form-group">
         <label for="full_name">Full Name</label>
