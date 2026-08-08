@@ -6,13 +6,13 @@
 
 <style>
   :root {
-    --bg-cream: #f9efe3;       /* Lighter cream background tone */
+    --bg-cream: #ffffff;       /* Updated background to pure white */
     --hero-bg: #ebd5c1;        /* Dedicated background for Hero & About sections */
     --dark-brown: #331d0d;
     --text-muted: #5e4a3c;
     --accent-gold: #c2955d;
-    --footer-bg: #3d2314;      /* Lighter brown footer background */
-    --footer-text-yellow: #f2c94c; /* Yellow font color */
+    --footer-bg: #3d2314;      /* Footer background color */
+    --footer-text-yellow: #f2c94c; /* Yellow accent color for headings */
     --card-bg: #ffffff;
     --border-color: #d6bca8;
   }
@@ -165,7 +165,7 @@
     color: var(--dark-brown); padding: 12px 20px; text-decoration: none; display: block;
     font-size: 0.95rem; transition: 0.2s; cursor: pointer;
   }
-  .dropdown-content a:hover { background: var(--bg-cream); color: var(--accent-gold); padding-left: 25px; }
+  .dropdown-content a:hover { background: #f9efe3; color: var(--accent-gold); padding-left: 25px; }
 
   /* --- Cursive Section Titles --- */
   .section-header-left {
@@ -371,10 +371,10 @@
   }
   .btn-primary:hover { background: #4a2d18; }
 
-  /* --- STRICT SINGLE FOOTER STYLING --- */
+  /* --- FOOTER STYLING --- */
   .single-site-footer { 
     background-color: var(--footer-bg) !important; 
-    color: var(--footer-text-yellow) !important; 
+    color: #ffffff !important; 
     padding: 50px 20px 25px !important; 
     font-size: 0.9rem; 
     margin-top: 80px; 
@@ -388,16 +388,19 @@
     gap: 50px; 
     margin-bottom: 40px; 
   }
+  /* Footer headings match About Briella's font ('Playfair Display') and are yellow */
   .footer-col h4 { 
-    font-family: 'Playfair Display', serif; 
+    font-family: 'Playfair Display', serif !important; 
     color: var(--footer-text-yellow) !important; 
     margin-top: 0; 
     font-size: 1.4rem; 
     letter-spacing: 1.5px; 
     text-transform: uppercase;
+    font-weight: 700;
   }
+  /* Footer content & links are white */
   .footer-col p, .footer-col a { 
-    color: var(--footer-text-yellow) !important; 
+    color: #ffffff !important; 
     text-decoration: none; 
     line-height: 1.8; 
     display: block; 
@@ -405,15 +408,14 @@
   }
   .footer-col a:hover { opacity: 0.8; }
   .footer-bottom { 
-    border-top: 1px solid rgba(242, 201, 76, 0.2); 
+    border-top: 1px solid rgba(255, 255, 255, 0.2); 
     text-align: center; 
     padding-top: 20px; 
-    color: var(--footer-text-yellow) !important; 
+    color: #ffffff !important; 
     font-size: 0.85rem; 
     font-family: 'Jost', sans-serif;
   }
 
-  /* Safety Rule: Automatically hide any extra/accidental duplicate footer tags */
   footer ~ footer { 
     display: none !important; 
   }
@@ -647,7 +649,7 @@
   </div>
 </div>
 
-<!-- ONLY ONE FOOTER FOR THE WHOLE PAGE -->
+<!-- SINGLE SITE FOOTER -->
 <footer class="single-site-footer">
   <div class="footer-container">
     <div class="footer-col">
