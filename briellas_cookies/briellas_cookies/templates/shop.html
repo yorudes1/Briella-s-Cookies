@@ -6,11 +6,13 @@
 
 <style>
   :root {
-    --bg-cream: #f4e6d4;      /* Darkened background tone */
-    --hero-bg: #ebd5c1;       /* Darkened hero banner tone */
+    --bg-cream: #f9efe3;       /* Lighter cream background tone */
+    --hero-bg: #ebd5c1;        /* Dedicated background for Hero & About sections */
     --dark-brown: #331d0d;
     --text-muted: #5e4a3c;
     --accent-gold: #c2955d;
+    --footer-bg: #3c2415;      /* Lighter brown footer background tone */
+    --footer-text-yellow: #f2c94c; /* Gold/yellow font color for footer */
     --card-bg: #ffffff;
     --border-color: #d6bca8;
   }
@@ -24,7 +26,7 @@
     overflow-x: hidden;
   }
 
-  /* --- Navigation Header --- */
+  /* --- Top Header Navigation --- */
   .shop-header { 
     width: 100%;
     max-width: 100%;
@@ -35,6 +37,7 @@
     align-items: center; 
     padding: 20px 50px;
     height: 80px;
+    background-color: var(--bg-cream);
   }
   .brand-logo { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--dark-brown); text-decoration: none; font-weight: bold; }
   .brand-logo span { font-weight: 300; font-style: italic; }
@@ -199,8 +202,38 @@
   .horizontal-scroll-container::-webkit-scrollbar-thumb { background: var(--accent-gold); border-radius: 10px; }
   .horizontal-scroll-container::-webkit-scrollbar-track { background: #d6bca8; border-radius: 10px; }
 
-  /* Product Cards (No Images inside product cards) */
-  .scroll-card, .product-card { 
+  /* Today's Choice Card (Transparent background style) */
+  .todays-choice-card {
+    min-width: 220px; 
+    max-width: 220px;
+    flex: 0 0 auto;
+    background: transparent; 
+    border-radius: 12px; 
+    border: none; 
+    padding: 20px 16px; 
+    text-align: center; 
+    scroll-snap-align: start; 
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .todays-choice-card h4 { 
+    font-family: 'Jost', sans-serif; 
+    font-size: 1.2rem; 
+    font-weight: 600;
+    margin: 5px 0; 
+    color: var(--dark-brown);
+  }
+  .todays-choice-card .price { 
+    color: var(--accent-gold); 
+    font-weight: bold; 
+    font-size: 1.1rem;
+    margin-bottom: 15px; 
+  }
+
+  /* Standard Product Cards */
+  .product-card { 
     min-width: 220px; 
     max-width: 220px;
     flex: 0 0 auto;
@@ -216,14 +249,14 @@
     flex-direction: column;
     justify-content: space-between;
   }
-  .scroll-card h4, .product-title { 
+  .product-title { 
     font-family: 'Jost', sans-serif; 
     font-size: 1.1rem; 
     font-weight: 600;
     margin: 5px 0; 
     color: var(--dark-brown);
   }
-  .scroll-card .price, .product-price { 
+  .product-price { 
     color: var(--accent-gold); 
     font-weight: bold; 
     font-size: 1.05rem;
@@ -242,7 +275,7 @@
   /* --- Today's Choice Section --- */
   .todays-choice { max-width: 1100px; margin: 50px auto; padding: 0 20px; }
 
-  /* --- About & Brand Facts Section (Full Width Cookie Tone) --- */
+  /* --- About & Brand Facts Section --- */
   .facts-section { 
     width: 100vw; 
     position: relative; 
@@ -338,13 +371,44 @@
   }
   .btn-primary:hover { background: #4a2d18; }
 
-  /* --- Footer --- */
-  footer { background: #1c1008; color: #d4c5b9; padding: 50px 20px 20px; font-size: 0.9rem; margin-top: 80px; }
-  .footer-container { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 50px; margin-bottom: 40px; }
-  .footer-col h4 { font-family: 'Playfair Display', serif; color: #f2e3d5; margin-top: 0; font-size: 1.3rem; letter-spacing: 1px; }
-  .footer-col p, .footer-col a { color: #b3a092; text-decoration: none; line-height: 1.8; display: block; }
-  .footer-col a:hover { color: var(--accent-gold); }
-  .footer-bottom { border-top: 1px solid #332115; text-align: center; padding-top: 20px; color: #786455; font-size: 0.8rem; }
+  /* --- Single Footer (Merged & Styled) --- */
+  footer { 
+    background: var(--footer-bg); 
+    color: var(--footer-text-yellow); 
+    padding: 50px 20px 20px; 
+    font-size: 0.9rem; 
+    margin-top: 80px; 
+  }
+  .footer-container { 
+    max-width: 1100px; 
+    margin: 0 auto; 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 50px; 
+    margin-bottom: 40px; 
+  }
+  .footer-col h4 { 
+    font-family: 'Playfair Display', serif; 
+    color: var(--footer-text-yellow); 
+    margin-top: 0; 
+    font-size: 1.4rem; 
+    letter-spacing: 1.5px; 
+    text-transform: uppercase;
+  }
+  .footer-col p, .footer-col a { 
+    color: var(--footer-text-yellow); 
+    text-decoration: none; 
+    line-height: 1.8; 
+    display: block; 
+  }
+  .footer-col a:hover { opacity: 0.8; }
+  .footer-bottom { 
+    border-top: 1px solid rgba(242, 201, 76, 0.2); 
+    text-align: center; 
+    padding-top: 20px; 
+    color: var(--footer-text-yellow); 
+    font-size: 0.85rem; 
+  }
 </style>
 {% endblock %}
 
@@ -431,7 +495,7 @@
     </div>
 </div>
 
-<!-- Today's Choice Horizontal Slider Section -->
+<!-- Today's Choice Section (Cards rendered without white background) -->
 <section class="todays-choice">
   <div class="section-header-left">
     <h2 class="section-title-script">Today's Choice</h2>
@@ -440,7 +504,7 @@
   
   <div class="horizontal-scroll-container">
     {% for id, cookie in cookies.items() %}
-    <div class="scroll-card">
+    <div class="todays-choice-card">
       <div>
         <h4>{{ cookie.name }}</h4>
         <div class="price">₱{{ cookie.price }}</div>
@@ -532,8 +596,6 @@
     <h3 style="font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-top: 0;">Place Your Order</h3>
     
     <form action="{{ url_for('order') }}" method="POST">
-      
-      <!-- Select Cookie Dropdown -->
       <div class="form-group">
         <label for="cookie_type">Select Cookie</label>
         <select name="cookie_type" id="cookie_type" required>
@@ -544,7 +606,6 @@
         </select>
       </div>
 
-      <!-- Quantity Input -->
       <div class="form-group">
         <label for="quantity">Quantity (Boxes/Pieces)</label>
         <input type="number" name="quantity" id="quantity" value="1" min="1" max="100" required>
@@ -578,7 +639,7 @@
   </div>
 </div>
 
-<!-- Footer Links Section -->
+<!-- Single Footer Block -->
 <footer>
   <div class="footer-container">
     <div class="footer-col">
