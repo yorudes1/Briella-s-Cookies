@@ -4,13 +4,13 @@
 {% block extra_styles %}
 <style>
   :root {
-    --bg-cream: #fbf5eb;
-    --hero-bg: #faeade;
+    --bg-cream: #f4e6d4;      /* Darkened background tone */
+    --hero-bg: #ebd5c1;       /* Darkened hero banner tone */
     --dark-brown: #331d0d;
-    --text-muted: #735f52;
+    --text-muted: #5e4a3c;
     --accent-gold: #c2955d;
     --card-bg: #ffffff;
-    --border-color: #ebd2be;
+    --border-color: #d6bca8;
   }
 
   body { 
@@ -31,6 +31,7 @@
     justify-content: space-between; 
     align-items: center; 
     padding: 20px 50px;
+    height: 80px;
   }
   .brand-logo { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--dark-brown); text-decoration: none; font-weight: bold; }
   .brand-logo span { font-weight: 300; font-style: italic; }
@@ -49,19 +50,25 @@
   }
   .btn-logout:hover { background: #8c2f1e; color: #fff; }
 
-  /* --- Hero Section --- */
+  /* --- Hero Section (Full Height Viewport) --- */
   .hero-section { 
     background-color: var(--hero-bg); 
-    padding: 60px 50px; 
+    min-height: calc(100vh - 80px); 
+    box-sizing: border-box;
+    padding: 40px 50px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border-bottom: 1px solid var(--border-color);
   }
   .hero-container { 
-    max-width: 1100px; 
+    max-width: 1200px; 
+    width: 100%;
     margin: 0 auto; 
     display: flex; 
     align-items: center; 
     justify-content: space-between; 
-    gap: 50px; 
+    gap: 60px; 
   }
   .hero-left { 
     flex: 1; 
@@ -69,15 +76,15 @@
   }
   .hero-title { 
     font-family: 'Playfair Display', serif; 
-    font-size: 3.2rem; 
+    font-size: 3.8rem; 
     color: var(--dark-brown); 
-    margin: 0 0 20px 0; 
+    margin: 0 0 25px 0; 
     font-style: italic; 
-    line-height: 1.2;
+    line-height: 1.15;
   }
   .hero-quote { 
     color: var(--dark-brown); 
-    font-size: 1.15rem; 
+    font-size: 1.25rem; 
     line-height: 1.7; 
     margin: 0;
   }
@@ -89,19 +96,19 @@
   }
   .hero-cookie-img { 
     max-width: 100%; 
-    max-height: 380px; 
+    max-height: 480px; 
     object-fit: contain; 
-    filter: drop-shadow(0px 12px 24px rgba(51, 29, 13, 0.18)); 
+    filter: drop-shadow(0px 16px 30px rgba(51, 29, 13, 0.22)); 
   }
 
   /* --- Banners Section --- */
-  .banners-section { max-width: 1100px; margin: 40px auto; display: grid; grid-template-columns: 1fr 1fr; gap: 25px; padding: 0 20px; }
+  .banners-section { max-width: 1100px; margin: 60px auto 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 25px; padding: 0 20px; }
   .banner-card { 
-    position: relative; height: 200px; border-radius: 10px; overflow: hidden; 
-    display: flex; align-items: center; padding: 30px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); 
+    position: relative; height: 220px; border-radius: 10px; overflow: hidden; 
+    display: flex; align-items: center; padding: 30px; box-shadow: 0 6px 18px rgba(0,0,0,0.08); 
   }
-  .banner-1 { background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&w=800&q=80') center/cover; }
-  .banner-2 { background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?auto=format&fit=crop&w=800&q=80') center/cover; }
+  .banner-1 { background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&w=800&q=80') center/cover; }
+  .banner-2 { background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?auto=format&fit=crop&w=800&q=80') center/cover; }
   .banner-content { color: #fff; z-index: 2; }
   .banner-content h3 { font-family: 'Playfair Display', serif; font-size: 2rem; margin: 0 0 15px 0; }
   .btn-banner { 
@@ -112,15 +119,15 @@
 
   /* --- CTA / Controls Section --- */
   .shop-intro { text-align: center; margin: 40px 0 20px; }
-  .shop-intro p { font-weight: 500; font-size: 1.8rem; color: var(--dark-brown); margin-bottom: 5px; }
+  .shop-intro p { font-weight: 500; font-size: 1.8rem; color: var(--dark-brown); margin-bottom: 10px; }
   .cta-button-group { display: flex; justify-content: center; gap: 20px; margin-top: 15px; align-items: center; }
   
-  .btn-view-menu, .btn-history-toggle {
+  .btn-history-toggle {
     background: var(--dark-brown); color: #fff; border: none; padding: 12px 30px; 
     border-radius: 30px; cursor: pointer; font-weight: 600; text-transform: uppercase;
     transition: 0.3s; font-size: 0.85rem; letter-spacing: 1px;
   }
-  .btn-view-menu:hover, .btn-history-toggle:hover { background: #594132; transform: translateY(-2px); }
+  .btn-history-toggle:hover { background: #594132; transform: translateY(-2px); }
 
   /* --- Search & Product Dropdown Styling --- */
   .controls-row {
@@ -168,7 +175,7 @@
   }
   .horizontal-scroll::-webkit-scrollbar { height: 6px; }
   .horizontal-scroll::-webkit-scrollbar-thumb { background: var(--accent-gold); border-radius: 10px; }
-  .horizontal-scroll::-webkit-scrollbar-track { background: #e2d3c2; }
+  .horizontal-scroll::-webkit-scrollbar-track { background: #d6bca8; }
 
   .scroll-card { 
     min-width: 220px; background: #fff; border-radius: 8px; border: 1px solid var(--border-color); 
@@ -260,7 +267,7 @@
   </div>
 </header>
 
-<!-- Hero Section -->
+<!-- Hero Section (Full Viewport Height) -->
 <section class="hero-section">
   <div class="hero-container">
     <div class="hero-left">
@@ -268,8 +275,11 @@
       <p class="hero-quote">We believe the best cookies are the ones that taste homemade — soft, fresh, flavorful, and made with real ingredients you can trust.</p>
     </div>
     <div class="hero-right">
-      <!-- Replace 'cookie_cutout.png' with your background-removed cookie image file -->
-      <img src="{{ url_for('static', filename='images/cookie_cutout.png') }}" class="hero-cookie-img" alt="Briella's Fresh Homemade Cookies">
+      <!-- Added fallback image URL in case static local file is missing -->
+      <img src="{{ url_for('static', filename='images/cookie_cutout.png') }}" 
+           onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&w=800&q=80';"
+           class="hero-cookie-img" 
+           alt="Briella's Fresh Homemade Cookies">
     </div>
   </div>
 </section>
