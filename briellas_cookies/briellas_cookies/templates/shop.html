@@ -11,8 +11,8 @@
     --dark-brown: #331d0d;
     --text-muted: #5e4a3c;
     --accent-gold: #c2955d;
-    --footer-bg: #3c2415;      /* Lighter brown footer background tone */
-    --footer-text-yellow: #f2c94c; /* Gold/yellow font color for footer */
+    --footer-bg: #3d2314;      /* Lighter brown footer background */
+    --footer-text-yellow: #f2c94c; /* Yellow font color */
     --card-bg: #ffffff;
     --border-color: #d6bca8;
   }
@@ -167,7 +167,7 @@
   }
   .dropdown-content a:hover { background: var(--bg-cream); color: var(--accent-gold); padding-left: 25px; }
 
-  /* --- Left-Aligned Cursive Section Titles --- */
+  /* --- Cursive Section Titles --- */
   .section-header-left {
     text-align: left;
     margin-bottom: 20px;
@@ -371,13 +371,14 @@
   }
   .btn-primary:hover { background: #4a2d18; }
 
-  /* --- Single Footer (Merged & Styled) --- */
-  footer { 
-    background: var(--footer-bg); 
-    color: var(--footer-text-yellow); 
-    padding: 50px 20px 20px; 
+  /* --- STRICT SINGLE FOOTER STYLING --- */
+  .single-site-footer { 
+    background-color: var(--footer-bg) !important; 
+    color: var(--footer-text-yellow) !important; 
+    padding: 50px 20px 25px !important; 
     font-size: 0.9rem; 
     margin-top: 80px; 
+    font-family: 'Jost', sans-serif;
   }
   .footer-container { 
     max-width: 1100px; 
@@ -389,25 +390,32 @@
   }
   .footer-col h4 { 
     font-family: 'Playfair Display', serif; 
-    color: var(--footer-text-yellow); 
+    color: var(--footer-text-yellow) !important; 
     margin-top: 0; 
     font-size: 1.4rem; 
     letter-spacing: 1.5px; 
     text-transform: uppercase;
   }
   .footer-col p, .footer-col a { 
-    color: var(--footer-text-yellow); 
+    color: var(--footer-text-yellow) !important; 
     text-decoration: none; 
     line-height: 1.8; 
     display: block; 
+    font-family: 'Jost', sans-serif;
   }
   .footer-col a:hover { opacity: 0.8; }
   .footer-bottom { 
     border-top: 1px solid rgba(242, 201, 76, 0.2); 
     text-align: center; 
     padding-top: 20px; 
-    color: var(--footer-text-yellow); 
+    color: var(--footer-text-yellow) !important; 
     font-size: 0.85rem; 
+    font-family: 'Jost', sans-serif;
+  }
+
+  /* Safety Rule: Automatically hide any extra/accidental duplicate footer tags */
+  footer ~ footer { 
+    display: none !important; 
   }
 </style>
 {% endblock %}
@@ -495,7 +503,7 @@
     </div>
 </div>
 
-<!-- Today's Choice Section (Cards rendered without white background) -->
+<!-- Today's Choice Section -->
 <section class="todays-choice">
   <div class="section-header-left">
     <h2 class="section-title-script">Today's Choice</h2>
@@ -639,8 +647,8 @@
   </div>
 </div>
 
-<!-- Single Footer Block -->
-<footer>
+<!-- ONLY ONE FOOTER FOR THE WHOLE PAGE -->
+<footer class="single-site-footer">
   <div class="footer-container">
     <div class="footer-col">
       <h4>CONTACT INFO</h4>
@@ -662,7 +670,6 @@
 </footer>
 
 <script>
-  // Toggle Logic for History
   function toggleHistory() {
     const section = document.getElementById('historySection');
     const btn = document.getElementById('historyBtn');
@@ -676,7 +683,6 @@
     }
   }
 
-  // Product Dropdown Logic
   function toggleDropdown() {
     document.getElementById("productDropdown").classList.toggle("show");
   }
@@ -691,7 +697,6 @@
     }
   }
 
-  // Live Search Filter Logic
   document.getElementById('cookieSearch').addEventListener('keyup', function() {
     let filter = this.value.toLowerCase();
     let cards = document.querySelectorAll('.cookie-card');
@@ -701,7 +706,6 @@
     });
   });
 
-  // Modal Handlers
   function openOrderModal(cookieId = '') {
     const modal = document.getElementById('orderModal');
     modal.style.display = 'flex';
@@ -714,7 +718,6 @@
     document.getElementById('orderModal').style.display = 'none';
   }
 
-  // Close Modals or Dropdowns when clicking outside
   window.onclick = function(event) {
     const modal = document.getElementById('orderModal');
     if (event.target === modal) {
