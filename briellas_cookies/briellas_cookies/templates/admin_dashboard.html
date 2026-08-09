@@ -527,25 +527,45 @@
         </thead>
         <tbody>
           {% if products %}
-            {% for id, cookie in products.items() if products is mapping else products %}
-            <tr>
-              <td><strong>{{ cookie.name }}</strong></td>
-              <td>₱{{ "%.2f"|format(cookie.price|float) }}</td>
-              <td style="color: var(--text-muted);">{{ cookie.desc or cookie.description or 'No description provided.' }}</td>
-              <td>
-                {% set item_status = cookie.status if cookie.status else 'Available' %}
-                <span class="status-badge {% if item_status == 'Available' %}status-available{% else %}status-outofstock{% endif %}">
-                  {{ item_status }}
-                </span>
-              </td>
-              <td style="text-align: center;">
-                {% set prod_id = id if products is mapping else cookie.id %}
-                <form action="{{ url_for('delete_product', product_id=prod_id) }}" method="POST" onsubmit="return confirm('Remove this cookie from shop?')">
-                  <button type="submit" class="btn-delete-small">🗑️ Delete</button>
-                </form>
-              </td>
-            </tr>
-            {% endfor %}
+            {% if products is mapping %}
+              {% for id, cookie in products.items() %}
+              <tr>
+                <td><strong>{{ cookie.name }}</strong></td>
+                <td>₱{{ "%.2f"|format(cookie.price|float) }}</td>
+                <td style="color: var(--text-muted);">{{ cookie.desc or cookie.description or 'No description provided.' }}</td>
+                <td>
+                  {% set item_status = cookie.status if cookie.status else 'Available' %}
+                  <span class="status-badge {% if item_status == 'Available' %}status-available{% else %}status-outofstock{% endif %}">
+                    {{ item_status }}
+                  </span>
+                </td>
+                <td style="text-align: center;">
+                  <form action="{{ url_for('delete_product', product_id=id) }}" method="POST" onsubmit="return confirm('Remove this cookie from shop?')">
+                    <button type="submit" class="btn-delete-small">🗑️ Delete</button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              {% for cookie in products %}
+              <tr>
+                <td><strong>{{ cookie.name }}</strong></td>
+                <td>₱{{ "%.2f"|format(cookie.price|float) }}</td>
+                <td style="color: var(--text-muted);">{{ cookie.desc or cookie.description or 'No description provided.' }}</td>
+                <td>
+                  {% set item_status = cookie.status if cookie.status else 'Available' %}
+                  <span class="status-badge {% if item_status == 'Available' %}status-available{% else %}status-outofstock{% endif %}">
+                    {{ item_status }}
+                  </span>
+                </td>
+                <td style="text-align: center;">
+                  <form action="{{ url_for('delete_product', product_id=cookie.id) }}" method="POST" onsubmit="return confirm('Remove this cookie from shop?')">
+                    <button type="submit" class="btn-delete-small">🗑️ Delete</button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            {% endif %}
           {% else %}
           <tr>
             <td colspan="5" style="text-align:center; padding: 40px; color: var(--text-muted);">No products currently listed. Add one above!</td>
