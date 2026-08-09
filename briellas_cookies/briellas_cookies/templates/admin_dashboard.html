@@ -3,242 +3,768 @@
 {% block title %}Admin Dashboard — Briella's Cookies{% endblock %}
 
 {% block extra_styles %}
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 <style>
-  body { background: #faf7f2; color: #3b1f0e; font-family: 'Jost', sans-serif; }
-  .dashboard-container { padding: 40px; max-width: 1400px; margin: 0 auto; }
-  
-  /* --- Header --- */
-  .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-  .top-nav h1 { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: #261206; margin: 0; }
-  .top-nav h1 span { font-weight: 300; font-style: italic; }
-  .admin-status { font-size: 0.9rem; color: #8c7667; }
-  .btn-logout { color: #8c2f1e; text-decoration: none; font-weight: 700; margin-left: 10px; text-transform: uppercase; letter-spacing: 1px; }
-  
-  hr.header-line { border: 0; height: 1px; background-image: linear-gradient(to right, transparent, #e6dfd5, transparent); margin-bottom: 40px; }
-
-  /* --- Stat Cards --- */
-  .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 25px; margin-bottom: 50px; }
-  .stat-card { 
-    background: #fff; 
-    border: 1px solid #f2ece4; 
-    border-radius: 20px; 
-    padding: 30px; 
-    text-align: center;
-    box-shadow: 0 10px 30px rgba(59,31,14,0.04);
+  :root {
+    --bg-cream: #faf7f2;
+    --header-bg: #FFF7EB;
+    --banner-bg: #EADBC8;
+    --dark-brown: #331d0d;
+    --text-muted: #8c7667;
+    --accent-gold: #c2955d;
+    --border-color: #e6dfd5;
+    --card-bg: #ffffff;
+    --green-badge: #d1fae5;
+    --green-text: #065f46;
+    --red-badge: #fee2e2;
+    --red-text: #991b1b;
   }
-  .stat-icon { font-size: 1.5rem; margin-bottom: 10px; display: block; }
-  .stat-card h3 { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.2em; color: #a68b7c; margin-bottom: 8px; }
-  .stat-card .val { font-size: 2rem; font-family: 'Playfair Display', serif; color: #3b1f0e; font-weight: 700; }
 
-  /* --- Reports Grid --- */
-  .reports-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 30px; margin-bottom: 50px; }
-  .chart-card { background: #fff; border: 1px solid #e6dfd5; border-radius: 15px; padding: 25px; display: flex; flex-direction: column; }
-  .chart-wrapper { position: relative; height: 300px; width: 100%; }
+  body { 
+    background: var(--bg-cream); 
+    color: var(--dark-brown); 
+    font-family: 'Jost', sans-serif; 
+    margin: 0;
+    overflow-x: hidden;
+  }
 
-  /* --- Manage Products Section --- */
-  .admin-panel-card { background: #fff; border: 1px solid #e6dfd5; border-radius: 15px; padding: 30px; margin-bottom: 40px; }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 15px; align-items: center; }
-  input { padding: 12px; border: 1px solid #efe9e1; border-radius: 8px; font-family: 'Jost'; background: #fdfcfb; width: 100%; }
-  .btn-action { background: #3b1f0e; color: #fff; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; }
+  /* --- Top Navigation Header (Matched to shop.html) --- */
+  .admin-header { 
+    width: 100%;
+    box-sizing: border-box;
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 20px 50px;
+    height: 80px;
+    background-color: var(--header-bg);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 900;
+  }
+  .brand-logo { 
+    font-family: 'Playfair Display', serif; 
+    font-size: 1.8rem; 
+    color: var(--dark-brown); 
+    text-decoration: none; 
+    font-weight: bold; 
+  }
+  .brand-logo span { font-weight: 300; font-style: italic; }
+
+  .header-right { 
+    display: flex; 
+    align-items: center; 
+    gap: 20px; 
+  }
+  .admin-status { 
+    font-size: 0.9rem; 
+    color: var(--text-muted); 
+    font-weight: 500;
+  }
+  .btn-logout { 
+    background: transparent; 
+    color: #8c2f1e; 
+    border: 1px solid #8c2f1e; 
+    padding: 6px 14px; 
+    border-radius: 4px; 
+    text-decoration: none; 
+    font-size: 0.8rem; 
+    font-weight: 600; 
+    text-transform: uppercase; 
+    transition: all 0.2s; 
+  }
+  .btn-logout:hover { background: #8c2f1e; color: #fff; }
+
+  /* Hamburger Menu Toggle Button */
+  .hamburger-btn {
+    background: var(--dark-brown);
+    color: #fff;
+    border: none;
+    font-size: 1.2rem;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Jost', sans-serif;
+    font-weight: 600;
+    transition: 0.3s;
+  }
+  .hamburger-btn:hover { background: #594132; }
+
+  /* --- Off-Canvas Side Navigation Drawer --- */
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.4);
+    z-index: 998;
+    display: none;
+  }
+  .sidebar-drawer {
+    position: fixed;
+    top: 0;
+    right: -320px;
+    width: 300px;
+    height: 100vh;
+    background: var(--header-bg);
+    border-left: 1px solid var(--border-color);
+    box-shadow: -5px 0 25px rgba(0,0,0,0.1);
+    z-index: 999;
+    transition: right 0.3s ease;
+    padding: 30px 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+  }
+  .sidebar-drawer.open { right: 0; }
+  .sidebar-drawer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+  }
+  .sidebar-drawer-header h3 {
+    font-family: 'Playfair Display', serif;
+    margin: 0;
+    color: var(--dark-brown);
+  }
+  .close-drawer-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--dark-brown);
+  }
+  .sidebar-nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .sidebar-nav-btn {
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 14px 18px;
+    border-radius: 8px;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--dark-brown);
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .sidebar-nav-btn:hover, .sidebar-nav-btn.active {
+    background: var(--banner-bg);
+    border-color: var(--accent-gold);
+  }
+
+  /* --- Dashboard Container --- */
+  .dashboard-container { 
+    padding: 40px; 
+    max-width: 1400px; 
+    margin: 0 auto; 
+  }
+
+  /* --- Main Overview Summary Cards --- */
+  .grid-stats { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+    gap: 25px; 
+    margin-bottom: 40px; 
+  }
+  .stat-card { 
+    background: var(--card-bg); 
+    border: 1px solid var(--border-color); 
+    border-radius: 16px; 
+    padding: 25px 20px; 
+    text-align: center;
+    box-shadow: 0 6px 18px rgba(51, 29, 13, 0.03);
+  }
+  .stat-icon { font-size: 1.8rem; margin-bottom: 8px; display: block; }
+  .stat-card h3 { 
+    font-size: 0.75rem; 
+    text-transform: uppercase; 
+    letter-spacing: 0.15em; 
+    color: var(--text-muted); 
+    margin: 0 0 8px 0; 
+  }
+  .stat-card .val { 
+    font-size: 2rem; 
+    font-family: 'Playfair Display', serif; 
+    color: var(--dark-brown); 
+    font-weight: 700; 
+  }
+  .stat-note {
+    font-size: 0.75rem;
+    color: var(--accent-gold);
+    margin-top: 5px;
+    font-style: italic;
+  }
+
+  /* --- Tab Content Panels --- */
+  .tab-panel {
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+  .tab-panel.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* --- Section Headings & Panel Cards --- */
+  h2 { font-family: 'Playfair Display', serif; margin: 30px 0 20px; color: var(--dark-brown); font-size: 1.8rem; }
+  .admin-panel-card { 
+    background: var(--card-bg); 
+    border: 1px solid var(--border-color); 
+    border-radius: 15px; 
+    padding: 30px; 
+    margin-bottom: 30px; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+  }
+
+  /* --- Product Form Styling --- */
+  .form-row-grid { 
+    display: grid; 
+    grid-template-columns: 1.5fr 1fr 1fr auto; 
+    gap: 15px; 
+    align-items: center; 
+  }
+  .form-group-full {
+    margin-top: 15px;
+  }
+  input, select, textarea { 
+    padding: 12px; 
+    border: 1px solid var(--border-color); 
+    border-radius: 8px; 
+    font-family: 'Jost', sans-serif; 
+    background: #fdfcfb; 
+    width: 100%; 
+    box-sizing: border-box;
+    font-size: 0.95rem;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent-gold);
+  }
+  .btn-action { 
+    background: var(--dark-brown); 
+    color: #fff; 
+    border: none; 
+    padding: 12px 24px; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    font-weight: 600; 
+    text-transform: uppercase; 
+    font-size: 0.8rem; 
+    letter-spacing: 0.5px;
+    transition: 0.2s;
+  }
+  .btn-action:hover { background: #594132; }
+
+  /* --- Reports & Analytics Grid --- */
+  .reports-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 25px; margin-bottom: 30px; }
+  .chart-card { background: #fff; border: 1px solid var(--border-color); border-radius: 15px; padding: 25px; display: flex; flex-direction: column; }
+  .chart-wrapper { position: relative; height: 280px; width: 100%; }
+
+  /* --- Status Badges --- */
+  .status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .status-available { background: var(--green-badge); color: var(--green-text); }
+  .status-outofstock { background: var(--red-badge); color: var(--red-text); }
+  .status-pending { background: #fef3c7; color: #92400e; }
+  .status-delivered { background: var(--green-badge); color: var(--green-text); }
+  .status-cancelled { background: var(--red-badge); color: var(--red-text); }
 
   /* --- Tables --- */
-  h2 { font-family: 'Playfair Display'; margin: 40px 0 20px; color: #261206; }
-  .table-wrapper { background: #fff; border: 1px solid #e6dfd5; border-radius: 15px; overflow: hidden; margin-bottom: 30px; }
-  table { width: 100%; border-collapse: collapse; }
-  th { background: #f9f6f2; padding: 18px; text-align: left; color: #8c7667; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
-  td { padding: 18px; border-bottom: 1px solid #f9f6f2; font-size: 0.95rem; }
+  .table-wrapper { 
+    background: #fff; 
+    border: 1px solid var(--border-color); 
+    border-radius: 15px; 
+    overflow-x: auto; 
+    margin-bottom: 30px; 
+  }
+  table { width: 100%; border-collapse: collapse; text-align: left; }
+  th { 
+    background: #f9f6f2; 
+    padding: 16px 20px; 
+    color: var(--text-muted); 
+    font-size: 0.75rem; 
+    text-transform: uppercase; 
+    letter-spacing: 1px; 
+    border-bottom: 1px solid var(--border-color);
+  }
+  td { padding: 16px 20px; border-bottom: 1px solid #f9f6f2; font-size: 0.95rem; vertical-align: middle; }
   
-  .btn-delete-small { background: transparent; border: 1px solid #eee; padding: 8px; border-radius: 8px; cursor: pointer; color: #d1d1d1; transition: 0.2s; }
-  .btn-delete-small:hover { color: #8c2f1e; background: #fff5f5; border-color: #fee2e2; }
-  
-  select { padding: 8px; border-radius: 6px; border: 1px solid #efe9e1; background: #fdfcfb; font-family: 'Jost'; }
+  .btn-delete-small { 
+    background: transparent; 
+    border: 1px solid #eee; 
+    padding: 8px 12px; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    color: #8c2f1e; 
+    transition: 0.2s; 
+    font-size: 0.85rem;
+    font-weight: bold;
+  }
+  .btn-delete-small:hover { background: #fff5f5; border-color: #fee2e2; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-  <div class="top-nav">
-    <h1>Briella's <span>Cookies</span></h1>
-    <div class="admin-status">
-      Logged in as Admin | <a href="{{ url_for('admin_logout') }}" class="btn-logout">Log Out</a>
-    </div>
-  </div>
+<!-- Admin Top Navigation Bar (Matches shop.html styling) -->
+<header class="admin-header">
+  <a href="#" class="brand-logo">Briella's <span>Cookies</span></a>
   
-  <hr class="header-line">
+  <div class="header-right">
+    <div class="admin-status">Logged in as <strong>Admin</strong></div>
+    
+    <!-- Side Menu Dropdown / Drawer Button (3 lines) -->
+    <button class="hamburger-btn" onclick="toggleSidebar()">
+      <span>☰</span> Menu
+    </button>
+    
+    <a href="{{ url_for('admin_logout') }}" class="btn-logout">Log Out</a>
+  </div>
+</header>
 
+<!-- Off-Canvas Sidebar Drawer Navigation -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="sidebar-drawer" id="sidebarDrawer">
+  <div class="sidebar-drawer-header">
+    <h3>Admin Navigation</h3>
+    <button class="close-drawer-btn" onclick="toggleSidebar()">&times;</button>
+  </div>
+  <ul class="sidebar-nav-list">
+    <li>
+      <button class="sidebar-nav-btn active" onclick="switchTab('overview')">
+        📊 Overview & Orders
+      </button>
+    </li>
+    <li>
+      <button class="sidebar-nav-btn" onclick="switchTab('products')">
+        🍪 Manage Products
+      </button>
+    </li>
+    <li>
+      <button class="sidebar-nav-btn" onclick="switchTab('sales')">
+        📈 Sales & Analytics
+      </button>
+    </li>
+    <li>
+      <button class="sidebar-nav-btn" onclick="switchTab('customers')">
+        👥 Customer Accounts
+      </button>
+    </li>
+  </ul>
+</div>
+
+<div class="dashboard-container">
+
+  <!-- Main Business Overview Summary Cards (Always Visible at Top) -->
   <div class="grid-stats">
     <div class="stat-card">
       <span class="stat-icon">💰</span>
       <h3>Store Revenue</h3>
       <div class="val">₱{{ "%.2f"|format(total_revenue) }}</div>
+      <div class="stat-note">* Delivered orders only</div>
     </div>
     <div class="stat-card">
       <span class="stat-icon">🍪</span>
-      <h3>Cookies Baked</h3>
+      <h3>Cookies Sold</h3>
       <div class="val">{{ total_cookies_sold }} Pcs</div>
+      <div class="stat-note">* Delivered items count</div>
     </div>
     <div class="stat-card">
       <span class="stat-icon">✨</span>
       <h3>Top Seller</h3>
-      <div class="val">{{ best_cookie_name }}</div>
+      <div class="val">{{ best_cookie_name if best_cookie_name else 'N/A' }}</div>
     </div>
     <div class="stat-card">
       <span class="stat-icon">👩‍🍳</span>
-      <h3>Customers</h3>
-      <div class="val">{{ customers|length }}</div>
+      <h3>Registered Customers</h3>
+      <div class="val">{{ customers|length if customers else 0 }}</div>
     </div>
   </div>
 
-  <h2>Manage Products</h2>
-  <div class="admin-panel-card">
-    <form action="{{ url_for('add_product') }}" method="POST">
-      <div class="form-row">
-        <input type="text" name="name" placeholder="Cookie Name" required>
-        <input type="number" name="price" placeholder="Price (₱)" required>
-        <input type="text" name="emoji" placeholder="Emoji (e.g. 🍪)">
-        <button type="submit" class="btn-action">Add Product to Shop</button>
-      </div>
-    </form>
+  <!-- ================= TAB 0: OVERVIEW & ORDERS ================= -->
+  <div id="tab-overview" class="tab-panel active">
+    <h2>Manage Customer Orders</h2>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Customer Info</th>
+            <th>Product Ordered</th>
+            <th>Total Price</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in recent_orders %}
+          <tr>
+            <td>#{{ order.id }}</td>
+            <td>
+              <strong>{{ order.name }}</strong><br>
+              <small style="color: var(--text-muted);">{{ order.contact }}</small>
+            </td>
+            <td>{{ order.quantity }}x {{ order.cookie_type }}</td>
+            <td><strong>₱{{ "%.2f"|format(order.total_price) }}</strong></td>
+            <td>
+              <form method="POST" action="{{ url_for('update_order', order_id=order.id) }}" style="display:flex; gap:8px; align-items:center;">
+                <select name="status" style="padding:6px 10px; width:auto;">
+                  <option value="Pending" {% if order.status == 'Pending' %}selected{% endif %}>Pending</option>
+                  <option value="Delivered" {% if order.status == 'Delivered' %}selected{% endif %}>Delivered</option>
+                  <option value="Cancelled" {% if order.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                </select>
+                <button type="submit" class="btn-action" style="padding: 6px 12px; font-size: 0.7rem;">Save</button>
+              </form>
+            </td>
+            <td>
+              <form action="{{ url_for('admin_delete_order', order_id=order.id) }}" method="POST" onsubmit="return confirm('Delete this order permanently?')">
+                <button type="submit" class="btn-delete-small">🗑️ Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="6" style="text-align:center; padding: 40px; color: var(--text-muted);">No orders found yet. 🍪</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Customer Feedback</h2>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>Message</th>
+            <th style="width: 100px; text-align: center;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for comment in customer_comments %}
+          <tr>
+            <td><strong>{{ comment.user_name }}</strong></td>
+            <td>"{{ comment.text }}"</td>
+            <td style="text-align: center;">
+              <form action="{{ url_for('delete_comment', comment_id=comment.id) }}" method="POST" onsubmit="return confirm('Delete this feedback?')">
+                <button type="submit" class="btn-delete-small">🗑️</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="3" style="text-align:center; padding: 40px; color: var(--text-muted);">No feedback submitted yet!</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 
-  <h2>Sales Report</h2>
-  <div class="reports-grid">
-    <div class="chart-card">
-      <h3>Top Selling Flavors</h3>
-      <div class="chart-wrapper">
-        <canvas id="productPieChart"></canvas>
+  <!-- ================= TAB 1: MANAGE PRODUCTS ================= -->
+  <div id="tab-products" class="tab-panel">
+    <h2>Add New Product</h2>
+    <div class="admin-panel-card">
+      <form action="{{ url_for('add_product') }}" method="POST">
+        <div class="form-row-grid">
+          <input type="text" name="name" placeholder="Product / Cookie Name" required>
+          <input type="number" step="0.01" name="price" placeholder="Price (₱)" required>
+          
+          <select name="status" required>
+            <option value="Available" selected>Available (Visible in Shop)</option>
+            <option value="Out of Stock">Out of Stock (Hidden)</option>
+          </select>
+          
+          <button type="submit" class="btn-action">Add Product to Shop</button>
+        </div>
+        
+        <div class="form-group-full">
+          <textarea name="description" rows="2" placeholder="Product description (optional)..."></textarea>
+        </div>
+      </form>
+    </div>
+
+    <h2>Current Menu / Products List</h2>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Product Name</th>
+            <th>Price</th>
+            <th>Description</th>
+            <th>Availability Status</th>
+            <th style="text-align: center;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if products %}
+            {% for id, cookie in products.items() if products is mapping else products %}
+            <tr>
+              <td><strong>{{ cookie.name }}</strong></td>
+              <td>₱{{ "%.2f"|format(cookie.price|float) }}</td>
+              <td style="color: var(--text-muted);">{{ cookie.desc or cookie.description or 'No description provided.' }}</td>
+              <td>
+                {% set item_status = cookie.status if cookie.status else 'Available' %}
+                <span class="status-badge {% if item_status == 'Available' %}status-available{% else %}status-outofstock{% endif %}">
+                  {{ item_status }}
+                </span>
+              </td>
+              <td style="text-align: center;">
+                {% set prod_id = id if products is mapping else cookie.id %}
+                <form action="{{ url_for('delete_product', product_id=prod_id) }}" method="POST" onsubmit="return confirm('Remove this cookie from shop?')">
+                  <button type="submit" class="btn-delete-small">🗑️ Delete</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+          <tr>
+            <td colspan="5" style="text-align:center; padding: 40px; color: var(--text-muted);">No products currently listed. Add one above!</td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ================= TAB 2: SALES & ANALYTICS ================= -->
+  <div id="tab-sales" class="tab-panel">
+    <h2>Sales & Order Performance</h2>
+    
+    <!-- Pending vs Delivered Breakdown -->
+    <div class="grid-stats" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+      <div class="stat-card">
+        <h3>Delivered Orders</h3>
+        <div class="val" style="color: var(--green-text);">{{ delivered_orders_count if delivered_orders_count is defined else recent_orders|selectattr('status', 'equalto', 'Delivered')|list|length }}</div>
+      </div>
+      <div class="stat-card">
+        <h3>Pending Orders</h3>
+        <div class="val" style="color: #92400e;">{{ pending_orders_count if pending_orders_count is defined else recent_orders|selectattr('status', 'equalto', 'Pending')|list|length }}</div>
+      </div>
+      <div class="stat-card">
+        <h3>Total Products Sold</h3>
+        <div class="val">{{ total_cookies_sold }}</div>
       </div>
     </div>
-    <div class="chart-card">
-      <h3>Weekly Store Orders</h3>
-      <div class="chart-wrapper">
-        <canvas id="trendsLineChart"></canvas>
+
+    <div class="reports-grid">
+      <div class="chart-card">
+        <h3 style="font-family: 'Playfair Display'; margin-top: 0;">Top Selling Flavors (%)</h3>
+        <div class="chart-wrapper">
+          <canvas id="productPieChart"></canvas>
+        </div>
       </div>
+      <div class="chart-card">
+        <h3 style="font-family: 'Playfair Display'; margin-top: 0;">Weekly Store Orders Trend</h3>
+        <div class="chart-wrapper">
+          <canvas id="trendsLineChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <h2>Product Performance Breakdown</h2>
+    <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: -10px; margin-bottom: 20px;">
+      Identify fast-moving vs. slow-moving flavors based on sales and quantity sold.
+    </p>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Product Name</th>
+            <th>Quantity Sold</th>
+            <th>Total Revenue (₱)</th>
+            <th>Market Share (%)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if product_performance %}
+            {% for item in product_performance %}
+            <tr>
+              <td><strong>{{ item.name }}</strong></td>
+              <td>{{ item.quantity_sold }} Pcs</td>
+              <td>₱{{ "%.2f"|format(item.total_sales) }}</td>
+              <td>
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <div style="flex:1; background:#e6dfd5; height:8px; border-radius:4px; overflow:hidden;">
+                    <div style="width: {{ item.percentage }}%; background: var(--accent-gold); height:100%;"></div>
+                  </div>
+                  <span>{{ "%.1f"|format(item.percentage) }}%</span>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+          <tr>
+            <td colspan="4" style="text-align:center; padding: 40px; color: var(--text-muted);">Sales performance data will appear here once orders are delivered.</td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
     </div>
   </div>
 
-  <h2>Manage Customer Orders</h2>
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Customer</th>
-          <th>Product</th>
-          <th>Total</th>
-          <th>Status</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for order in recent_orders %}
-        <tr>
-          <td>#{{ order.id }}</td>
-          <td><strong>{{ order.name }}</strong><br><small>{{ order.contact }}</small></td>
-          <td>{{ order.quantity }}x {{ order.cookie_type }}</td>
-          <td>₱{{ order.total_price }}</td>
-          <td>
-            <form method="POST" action="{{ url_for('update_order', order_id=order.id) }}" style="display:flex; gap:8px;">
-              <select name="status">
-                <option value="Pending" {% if order.status == 'Pending' %}selected{% endif %}>Pending</option>
-                <option value="Delivered" {% if order.status == 'Delivered' %}selected{% endif %}>Delivered</option>
-                <option value="Cancelled" {% if order.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
-              </select>
-              <button type="submit" class="btn-action" style="padding: 5px 12px; font-size: 0.7rem;">Save</button>
-            </form>
-          </td>
-          <td>
-             <form action="{{ url_for('admin_delete_order', order_id=order.id) }}" method="POST" onsubmit="return confirm('Delete this order permanently?')">
-               <button type="submit" class="btn-delete-small">🗑️</button>
-             </form>
-          </td>
-        </tr>
-        {% else %}
-        <tr><td colspan="6" style="text-align:center; padding: 40px; color: #a68b7c;">No orders found yet. 🍪</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <!-- ================= TAB 3: CUSTOMER ACCOUNTS ================= -->
+  <div id="tab-customers" class="tab-panel">
+    <h2>Registered Customer Accounts</h2>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Customer Name</th>
+            <th>Contact / Email</th>
+            <th style="text-align: center;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if customers %}
+            {% for customer in customers %}
+            <tr>
+              <td>#{{ customer.id if customer.id else loop.index }}</td>
+              <td><strong>{{ customer.name if customer.name else customer.username }}</strong></td>
+              <td>{{ customer.contact if customer.contact else customer.email }}</td>
+              <td style="text-align: center;">
+                <form action="{{ url_for('delete_customer', customer_id=customer.id if customer.id else loop.index) }}" method="POST" onsubmit="return confirm('Delete this customer account permanently?')">
+                  <button type="submit" class="btn-delete-small">🗑️ Delete Account</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+          <tr>
+            <td colspan="4" style="text-align:center; padding: 40px; color: var(--text-muted);">No registered customer accounts found.</td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
   </div>
 
-  <h2>Customer Feedback</h2>
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>Customer</th>
-          <th>Message</th>
-          <th style="width: 80px; text-align: center;">Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for comment in customer_comments %}
-        <tr>
-          <td><strong>{{ comment.user_name }}</strong></td>
-          <td>"{{ comment.text }}"</td>
-          <td style="text-align: center;">
-            <form action="{{ url_for('delete_comment', comment_id=comment.id) }}" method="POST" onsubmit="return confirm('Delete this feedback?')">
-              <button type="submit" class="btn-delete-small">🗑️</button>
-            </form>
-          </td>
-        </tr>
-        {% else %}
-        <tr><td colspan="3" style="text-align:center; padding: 40px; color: #a68b7c;">No messages yet!</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // PIE CHART
-    const ctxPie = document.getElementById('productPieChart').getContext('2d');
-    new Chart(ctxPie, {
-      type: 'pie',
-      data: {
-        labels: {{ chart_labels | safe }},
-        datasets: [{
-          data: {{ chart_data | safe }},
-          backgroundColor: ['#3b1f0e', '#8c7667', '#d9c5b2', '#f2ece4'],
-          borderWidth: 2,
-          borderColor: '#ffffff'
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { position: 'bottom' } }
-      }
+  // Drawer Menu Toggle Functions
+  function toggleSidebar() {
+    const drawer = document.getElementById('sidebarDrawer');
+    const overlay = document.getElementById('sidebarOverlay');
+    const isOpen = drawer.classList.contains('open');
+    if (isOpen) {
+      drawer.classList.remove('open');
+      overlay.style.display = 'none';
+    } else {
+      drawer.classList.add('open');
+      overlay.style.display = 'block';
+    }
+  }
+
+  // Subtab Navigation Switcher
+  function switchTab(tabId) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-panel').forEach(panel => {
+      panel.classList.remove('active');
     });
 
-    // LINE CHART
-    const ctxLine = document.getElementById('trendsLineChart').getContext('2d');
-    new Chart(ctxLine, {
-      type: 'line',
-      data: {
-        labels: {{ time_labels | safe }},
-        datasets: [{
-          label: 'Total Orders',
-          data: {{ time_data | safe }},
-          borderColor: '#3b1f0e',
-          backgroundColor: 'rgba(59, 31, 14, 0.05)',
-          fill: true,
-          tension: 0.3,
-          pointRadius: 6,
-          pointBackgroundColor: '#3b1f0e'
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: { 
-          y: { beginAtZero: true, ticks: { stepSize: 1 } },
-          x: { grid: { display: false } }
-        },
-        plugins: { legend: { display: false } }
-      }
+    // Remove active class from drawer buttons
+    document.querySelectorAll('.sidebar-nav-btn').forEach(btn => {
+      btn.classList.remove('active');
     });
+
+    // Activate targeted tab and button
+    const targetPanel = document.getElementById('tab-' + tabId);
+    if (targetPanel) {
+      targetPanel.classList.add('active');
+    }
+
+    // Highlight button in drawer
+    event.currentTarget.classList.add('active');
+
+    // Close sidebar drawer after selection
+    toggleSidebar();
+  }
+
+  // Initialize Chart.js Graphics
+  document.addEventListener('DOMContentLoaded', function() {
+    // PIE CHART: Top Selling Flavors
+    const ctxPie = document.getElementById('productPieChart')?.getContext('2d');
+    if (ctxPie) {
+      new Chart(ctxPie, {
+        type: 'pie',
+        data: {
+          labels: {{ chart_labels | safe if chart_labels else [] }},
+          datasets: [{
+            data: {{ chart_data | safe if chart_data else [] }},
+            backgroundColor: ['#3b1f0e', '#c2955d', '#8c7667', '#d9c5b2', '#f2ece4'],
+            borderWidth: 2,
+            borderColor: '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });
+    }
+
+    // LINE CHART: Weekly Orders
+    const ctxLine = document.getElementById('trendsLineChart')?.getContext('2d');
+    if (ctxLine) {
+      new Chart(ctxLine, {
+        type: 'line',
+        data: {
+          labels: {{ time_labels | safe if time_labels else [] }},
+          datasets: [{
+            label: 'Delivered Orders',
+            data: {{ time_data | safe if time_data else [] }},
+            borderColor: '#3b1f0e',
+            backgroundColor: 'rgba(51, 29, 13, 0.05)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 6,
+            pointBackgroundColor: '#3b1f0e'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { 
+            y: { beginAtZero: true, ticks: { stepSize: 1 } },
+            x: { grid: { display: false } }
+          },
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
   });
 </script>
 {% endblock %}
