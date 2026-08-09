@@ -249,84 +249,123 @@ def admin_dashboard():
     if not session.get('admin'):
         return redirect(url_for('admin_login'))
 
-    conn = get_db()
-    with conn.cursor() as cursor:
-        # Fetch Products Table
-        cursor.execute("SELECT * FROM products ORDER BY id DESC")
-        db_products = cursor.fetchall()
+    products = []
+    customers = []
+    recent_orders = []
+    customer_comments = []
+    total_revenue = 0.0
+    total_cookies_sold = 0
+    delivered_orders_count = 0
+    pending_orders_count = 0
+    best_cookie_name = "None"
+    product_performance = []
+    prod_labels = []
+    prod_data = []
+    time_labels = []
+    time_data = []
 
-        # Customers Mapping
-        cursor.execute('''
-            SELECT c.id, c.name, c.email, c.contact, c.address, c.created_at, COUNT(o.id) as order_count 
-            FROM customers c LEFT JOIN orders o ON c.id = o.customer_id 
-            GROUP BY c.id, c.name, c.email, c.contact, c.address, c.created_at 
-            ORDER BY c.created_at DESC
-        ''')
-        customers = cursor.fetchall()
+    try:
+        conn = get_db()
+        with conn.cursor() as cursor:
+            # 1. Fetch Products
+            cursor.execute("SELECT * FROM products ORDER BY id DESC")
+            products = cursor.fetchall()
 
-        # Recent Transactions
-        cursor.execute('''
-            SELECT o.*, c.name, c.contact, c.address, c.email 
-            FROM orders o JOIN customers c ON o.customer_id = c.id 
-            ORDER BY o.created_at DESC LIMIT 30
-        ''')
-        recent_orders = cursor.fetchall()
+            # 2. Fetch Customers with Order Counts (Compatible with MySQL 8 Strict Mode)
+            cursor.execute('''
+                SELECT c.*, (SELECT COUNT(*) FROM orders o WHERE o.customer_id = c.id) AS order_count
+                FROM customers c
+                ORDER BY c.created_at DESC
+            ''')
+            customers = cursor.fetchall()
 
-        # Fetch Feedback/Comments (Renamed to match dashboard template)
-        cursor.execute('SELECT id, customer_name AS user_name, message AS text FROM comments ORDER BY created_at DESC')
-        customer_comments = cursor.fetchall()
+            # 3. Recent Transactions
+            cursor.execute('''
+                SELECT o.*, c.name, c.contact, c.address, c.email 
+                FROM orders o 
+                JOIN customers c ON o.customer_id = c.id 
+                ORDER BY o.created_at DESC LIMIT 30
+            ''')
+            recent_orders = cursor.fetchall()
 
-        # Revenue & Sales Logic (Filter by Delivered orders if present, otherwise all non-cancelled)
-        cursor.execute("SELECT SUM(total_price) as total_rev FROM orders WHERE status = 'Delivered'")
-        rev_row = cursor.fetchone()
-        total_revenue = float(rev_row['total_rev']) if rev_row and rev_row['total_rev'] else 0.0
+            # 4. Feedback / Comments
+            cursor.execute('SELECT id, customer_name AS user_name, message AS text FROM comments ORDER BY id DESC')
+            customer_comments = cursor.fetchall()
 
-        cursor.execute("SELECT SUM(quantity) as total_qty FROM orders WHERE status = 'Delivered'")
-        qty_row = cursor.fetchone()
-        total_cookies_sold = int(qty_row['total_qty']) if qty_row and qty_row['total_qty'] else 0
+            # 5. Metrics & Totals
+            cursor.execute("SELECT SUM(total_price) as total_rev FROM orders WHERE status = 'Delivered'")
+            rev_row = cursor.fetchone()
+            if rev_row and rev_row['total_rev']:
+                total_revenue = float(rev_row['total_rev'])
 
-        # Graph Formatting (Real Data for Pie Chart)
-        prod_labels, prod_data = [], []
-        product_performance = []
-        for key, details in COOKIES.items():
-            cursor.execute("SELECT SUM(quantity) as vol, SUM(total_price) as sales FROM orders WHERE cookie_type = %s AND status = 'Delivered'", (key,))
-            res = cursor.fetchone()
-            vol = int(res['vol']) if res and res['vol'] else 0
-            sales = float(res['sales']) if res and res['sales'] else 0.0
-            prod_labels.append(details['name'])
-            prod_data.append(vol)
-            pct = (vol / total_cookies_sold * 100) if total_cookies_sold > 0 else 0.0
-            product_performance.append({
-                'name': details['name'],
-                'quantity_sold': vol,
-                'total_sales': sales,
-                'percentage': pct
-            })
+            cursor.execute("SELECT SUM(quantity) as total_qty FROM orders WHERE status = 'Delivered'")
+            qty_row = cursor.fetchone()
+            if qty_row and qty_row['total_qty']:
+                total_cookies_sold = int(qty_row['total_qty'])
 
-        # Timeline Logic (Real Data for Line Chart)
-        time_labels, time_data = [], []
-        for i in range(6, -1, -1):
-            day = (datetime.now() - timedelta(days=i)).date()
-            cursor.execute("SELECT SUM(quantity) as qty FROM orders WHERE DATE(created_at) = %s AND status = 'Delivered'", (day,))
-            row = cursor.fetchone()
-            time_labels.append(day.strftime('%b %d'))
-            time_data.append(int(row['qty']) if row and row['qty'] else 0)
+            cursor.execute("SELECT COUNT(*) as cnt FROM orders WHERE status = 'Delivered'")
+            del_row = cursor.fetchone()
+            if del_row:
+                delivered_orders_count = int(del_row['cnt'])
 
-        # Identify Top Seller Name
-        cursor.execute("SELECT cookie_type, SUM(quantity) as total FROM orders WHERE status = 'Delivered' GROUP BY cookie_type ORDER BY total DESC LIMIT 1")
-        top_row = cursor.fetchone()
-        best_cookie = top_row['cookie_type'] if top_row else "None"
+            cursor.execute("SELECT COUNT(*) as cnt FROM orders WHERE status = 'Pending'")
+            pend_row = cursor.fetchone()
+            if pend_row:
+                pending_orders_count = int(pend_row['cnt'])
 
-    conn.close()
+            # 6. Cookie Performance & Pie Chart Data
+            for key, details in COOKIES.items():
+                cursor.execute(
+                    "SELECT SUM(quantity) as vol, SUM(total_price) as sales FROM orders WHERE cookie_type = %s AND status = 'Delivered'", 
+                    (key,)
+                )
+                res = cursor.fetchone()
+                vol = int(res['vol']) if res and res['vol'] else 0
+                sales = float(res['sales']) if res and res['sales'] else 0.0
+                prod_labels.append(details['name'])
+                prod_data.append(vol)
+                pct = (vol / total_cookies_sold * 100) if total_cookies_sold > 0 else 0.0
+                product_performance.append({
+                    'name': details['name'],
+                    'quantity_sold': vol,
+                    'total_sales': sales,
+                    'percentage': pct
+                })
+
+            # 7. Timeline Chart Data
+            for i in range(6, -1, -1):
+                day = (datetime.now() - timedelta(days=i)).date()
+                cursor.execute(
+                    "SELECT SUM(quantity) as qty FROM orders WHERE DATE(created_at) = %s AND status = 'Delivered'", 
+                    (day,)
+                )
+                row = cursor.fetchone()
+                time_labels.append(day.strftime('%b %d'))
+                time_data.append(int(row['qty']) if row and row['qty'] else 0)
+
+            # 8. Top Seller Identification
+            cursor.execute(
+                "SELECT cookie_type, SUM(quantity) as total FROM orders WHERE status = 'Delivered' GROUP BY cookie_type ORDER BY total DESC LIMIT 1"
+            )
+            top_row = cursor.fetchone()
+            if top_row and top_row.get('cookie_type'):
+                best_cookie_name = str(top_row['cookie_type']).capitalize()
+
+        conn.close()
+    except Exception as e:
+        flash(f'Database error loading dashboard: {str(e)}', 'error')
+
     return render_template('admin_dashboard.html',
-                           products=db_products,
+                           products=products,
                            customers=customers,
                            recent_orders=recent_orders,
                            customer_comments=customer_comments,
                            cookies=COOKIES,
                            total_revenue=total_revenue,
                            total_cookies_sold=total_cookies_sold,
-                           best_cookie_name=best_cookie.capitalize(),
+                           delivered_orders_count=delivered_orders_count,
+                           pending_orders_count=pending_orders_count,
+                           best_cookie_name=best_cookie_name,
                            product_performance=product_performance,
                            chart_labels=json.dumps(prod_labels),
                            chart_data=json.dumps(prod_data),
