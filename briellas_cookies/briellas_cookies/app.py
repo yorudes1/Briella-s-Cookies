@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import os
 import json
+import traceback
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 import pymysql
@@ -25,58 +26,61 @@ def get_db():
         database=DB_NAME,
         ssl={'ssl': {}},
         cursorclass=DictCursor,
-        autocommit=True
+        autocommit=True,
+        connect_timeout=10
     )
 
 def init_db():
     conn = get_db()
-    with conn.cursor() as cursor:
-        # Customers Table
-        cursor.execute('''CREATE TABLE IF NOT EXISTS customers (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(255) NOT NULL,
-            email VARCHAR(255) UNIQUE NOT NULL,
-            password VARCHAR(255) NOT NULL,
-            contact VARCHAR(100) NOT NULL,
-            address TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )''')
-        # Products Table
-        cursor.execute('''CREATE TABLE IF NOT EXISTS products (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(255) NOT NULL,
-            price DECIMAL(10,2) NOT NULL,
-            description TEXT,
-            status VARCHAR(50) DEFAULT 'Available',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )''')
-        # Orders Table
-        cursor.execute('''CREATE TABLE IF NOT EXISTS orders (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            customer_id INT NOT NULL,
-            cookie_type VARCHAR(100) NOT NULL,
-            quantity INT NOT NULL,
-            total_price DECIMAL(10,2) NOT NULL,
-            status VARCHAR(50) DEFAULT 'Pending',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )''')
-        # Comments/Feedback Table
-        cursor.execute('''CREATE TABLE IF NOT EXISTS comments (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            customer_name VARCHAR(255) NOT NULL,
-            message TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )''')
-        
-        cursor.execute("SHOW COLUMNS FROM orders LIKE 'delivery_date'")
-        if not cursor.fetchone():
-            cursor.execute("ALTER TABLE orders ADD COLUMN delivery_date VARCHAR(100) DEFAULT 'Not Scheduled Yet'")
-    conn.close()
+    try:
+        with conn.cursor() as cursor:
+            # Customers Table
+            cursor.execute('''CREATE TABLE IF NOT EXISTS customers (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                contact VARCHAR(100) NOT NULL,
+                address TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )''')
+            # Products Table
+            cursor.execute('''CREATE TABLE IF NOT EXISTS products (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                price DECIMAL(10,2) NOT NULL,
+                description TEXT,
+                status VARCHAR(50) DEFAULT 'Available',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )''')
+            # Orders Table
+            cursor.execute('''CREATE TABLE IF NOT EXISTS orders (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                customer_id INT NOT NULL,
+                cookie_type VARCHAR(100) NOT NULL,
+                quantity INT NOT NULL,
+                total_price DECIMAL(10,2) NOT NULL,
+                status VARCHAR(50) DEFAULT 'Pending',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )''')
+            # Comments/Feedback Table
+            cursor.execute('''CREATE TABLE IF NOT EXISTS comments (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                customer_name VARCHAR(255) NOT NULL,
+                message TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )''')
+            
+            cursor.execute("SHOW COLUMNS FROM orders LIKE 'delivery_date'")
+            if not cursor.fetchone():
+                cursor.execute("ALTER TABLE orders ADD COLUMN delivery_date VARCHAR(100) DEFAULT 'Not Scheduled Yet'")
+    finally:
+        conn.close()
 
 try:
     init_db()
 except Exception as e:
-    print("Database init warning:", e)
+    print("Database init warning on import:", e)
 
 COOKIES = {
     'smores': {
@@ -97,6 +101,11 @@ COOKIES = {
     }
 }
 
+# ── Debug Error Handler for 500 Internal Server Errors ─────────────────────────
+@app.errorhandler(500)
+def handle_internal_error(e):
+    return f"<h2>500 Internal Server Error</h2><p>Traceback details:</p><pre>{traceback.format_exc()}</pre>", 500
+
 # ── Customer Routes ──────────────────────────────────────────────────────────
 
 @app.route('/')
@@ -114,10 +123,12 @@ def login():
         password = request.form['password']
         
         conn = get_db()
-        with conn.cursor() as cursor:
-            cursor.execute('SELECT * FROM customers WHERE email = %s', (email,))
-            user = cursor.fetchone()
-        conn.close()
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute('SELECT * FROM customers WHERE email = %s', (email,))
+                user = cursor.fetchone()
+        finally:
+            conn.close()
         
         if user and check_password_hash(user['password'], password):
             session['user_id'] = user['id']
@@ -157,16 +168,20 @@ def shop():
         return redirect(url_for('login'))
         
     conn = get_db()
-    with conn.cursor() as cursor:
-        cursor.execute(
-            'SELECT * FROM orders WHERE customer_id = %s ORDER BY created_at DESC LIMIT 10',
-            (session['user_id'],)
-        )
-        orders = cursor.fetchall()
-        for order in orders:
-            if 'created_at' in order and isinstance(order['created_at'], datetime):
-                order['created_at'] = order['created_at'].strftime('%Y-%m-%d %H:%M')
-    conn.close()
+    orders = []
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                'SELECT * FROM orders WHERE customer_id = %s ORDER BY created_at DESC LIMIT 10',
+                (session['user_id'],)
+            )
+            orders = cursor.fetchall() or []
+            for order in orders:
+                if 'created_at' in order and isinstance(order['created_at'], datetime):
+                    order['created_at'] = order['created_at'].strftime('%Y-%m-%d %H:%M')
+    finally:
+        conn.close()
+
     return render_template('shop.html', cookies=COOKIES, orders=orders)
 
 @app.route('/order', methods=['POST'])
@@ -187,12 +202,14 @@ def order():
     price = COOKIES[cookie_type]['price'] * quantity
     
     conn = get_db()
-    with conn.cursor() as cursor:
-        cursor.execute(
-            'INSERT INTO orders (customer_id, cookie_type, quantity, total_price) VALUES (%s, %s, %s, %s)',
-            (session['user_id'], cookie_type, quantity, price)
-        )
-    conn.close()
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                'INSERT INTO orders (customer_id, cookie_type, quantity, total_price) VALUES (%s, %s, %s, %s)',
+                (session['user_id'], cookie_type, quantity, price)
+            )
+    finally:
+        conn.close()
     
     flash(f'Order placed! {quantity}x {COOKIES[cookie_type]["name"]}', 'success')
     return redirect(url_for('shop'))
@@ -202,9 +219,11 @@ def delete_order(order_id):
     if 'user_id' not in session:
         return redirect(url_for('login'))
     conn = get_db()
-    with conn.cursor() as cursor:
-        cursor.execute('DELETE FROM orders WHERE id = %s AND customer_id = %s', (order_id, session['user_id']))
-    conn.close()
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute('DELETE FROM orders WHERE id = %s AND customer_id = %s', (order_id, session['user_id']))
+    finally:
+        conn.close()
     flash('Order cancelled.', 'success')
     return redirect(url_for('shop'))
 
@@ -216,12 +235,14 @@ def submit_feedback():
     message = request.form.get('message', '').strip()
     if message:
         conn = get_db()
-        with conn.cursor() as cursor:
-            cursor.execute(
-                'INSERT INTO comments (customer_name, message) VALUES (%s, %s)',
-                (session['user_name'], message)
-            )
-        conn.close()
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    'INSERT INTO comments (customer_name, message) VALUES (%s, %s)',
+                    (session['user_name'], message)
+                )
+        finally:
+            conn.close()
         flash('Thank you for your sweet feedback!', 'success')
     return redirect(url_for('shop'))
 
@@ -249,6 +270,12 @@ def admin_dashboard():
     if not session.get('admin'):
         return redirect(url_for('admin_login'))
 
+    # Retry table creation in case DB connection wasn't ready during boot
+    try:
+        init_db()
+    except Exception as e:
+        print("init_db retry:", e)
+
     products = []
     customers = []
     recent_orders = []
@@ -264,64 +291,88 @@ def admin_dashboard():
     time_labels = []
     time_data = []
 
+    conn = get_db()
     try:
-        conn = get_db()
         with conn.cursor() as cursor:
-            # 1. Fetch Products
+            # 1. Products List
             cursor.execute("SELECT * FROM products ORDER BY id DESC")
-            products = cursor.fetchall()
+            products = cursor.fetchall() or []
 
-            # 2. Fetch Customers with Order Counts (Compatible with MySQL 8 Strict Mode)
+            # 2. Customers List
             cursor.execute('''
                 SELECT c.*, (SELECT COUNT(*) FROM orders o WHERE o.customer_id = c.id) AS order_count
                 FROM customers c
                 ORDER BY c.created_at DESC
             ''')
-            customers = cursor.fetchall()
+            customers = cursor.fetchall() or []
 
-            # 3. Recent Transactions
+            # 3. Recent Orders
             cursor.execute('''
                 SELECT o.*, c.name, c.contact, c.address, c.email 
                 FROM orders o 
                 JOIN customers c ON o.customer_id = c.id 
                 ORDER BY o.created_at DESC LIMIT 30
             ''')
-            recent_orders = cursor.fetchall()
+            recent_orders = cursor.fetchall() or []
 
-            # 4. Feedback / Comments
-            cursor.execute('SELECT id, customer_name AS user_name, message AS text FROM comments ORDER BY id DESC')
-            customer_comments = cursor.fetchall()
+            # 4. Feedback with dual field names for template compatibility
+            cursor.execute('SELECT * FROM comments ORDER BY id DESC')
+            raw_comments = cursor.fetchall() or []
+            customer_comments = []
+            for c in raw_comments:
+                c_date = c.get('created_at')
+                if isinstance(c_date, datetime):
+                    c_date = c_date.strftime('%Y-%m-%d %H:%M')
+                customer_comments.append({
+                    'id': c.get('id'),
+                    'customer_name': c.get('customer_name', ''),
+                    'user_name': c.get('customer_name', ''),
+                    'message': c.get('message', ''),
+                    'text': c.get('message', ''),
+                    'created_at': c_date
+                })
 
-            # 5. Metrics & Totals
+            # Format datetime fields into strings to prevent Jinja AttributeError
+            for o in recent_orders:
+                if isinstance(o.get('created_at'), datetime):
+                    o['created_at'] = o['created_at'].strftime('%Y-%m-%d %H:%M')
+            for cust in customers:
+                if isinstance(cust.get('created_at'), datetime):
+                    cust['created_at'] = cust['created_at'].strftime('%Y-%m-%d %H:%M')
+            for p in products:
+                if isinstance(p.get('created_at'), datetime):
+                    p['created_at'] = p['created_at'].strftime('%Y-%m-%d %H:%M')
+
+            # 5. Metrics Calculation
             cursor.execute("SELECT SUM(total_price) as total_rev FROM orders WHERE status = 'Delivered'")
             rev_row = cursor.fetchone()
-            if rev_row and rev_row['total_rev']:
+            if rev_row and rev_row.get('total_rev') is not None:
                 total_revenue = float(rev_row['total_rev'])
 
             cursor.execute("SELECT SUM(quantity) as total_qty FROM orders WHERE status = 'Delivered'")
             qty_row = cursor.fetchone()
-            if qty_row and qty_row['total_qty']:
+            if qty_row and qty_row.get('total_qty') is not None:
                 total_cookies_sold = int(qty_row['total_qty'])
 
             cursor.execute("SELECT COUNT(*) as cnt FROM orders WHERE status = 'Delivered'")
             del_row = cursor.fetchone()
-            if del_row:
+            if del_row and del_row.get('cnt') is not None:
                 delivered_orders_count = int(del_row['cnt'])
 
             cursor.execute("SELECT COUNT(*) as cnt FROM orders WHERE status = 'Pending'")
             pend_row = cursor.fetchone()
-            if pend_row:
+            if pend_row and pend_row.get('cnt') is not None:
                 pending_orders_count = int(pend_row['cnt'])
 
-            # 6. Cookie Performance & Pie Chart Data
+            # 6. Product Performance & Chart Data
             for key, details in COOKIES.items():
                 cursor.execute(
                     "SELECT SUM(quantity) as vol, SUM(total_price) as sales FROM orders WHERE cookie_type = %s AND status = 'Delivered'", 
                     (key,)
                 )
                 res = cursor.fetchone()
-                vol = int(res['vol']) if res and res['vol'] else 0
-                sales = float(res['sales']) if res and res['sales'] else 0.0
+                vol = int(res['vol']) if (res and res.get('vol')) else 0
+                sales = float(res['sales']) if (res and res.get('sales')) else 0.0
                 prod_labels.append(details['name'])
                 prod_data.append(vol)
                 pct = (vol / total_cookies_sold * 100) if total_cookies_sold > 0 else 0.0
@@ -329,10 +380,10 @@ def admin_dashboard():
                     'name': details['name'],
                     'quantity_sold': vol,
                     'total_sales': sales,
-                    'percentage': pct
+                    'percentage': round(pct, 1)
                 })
 
-            # 7. Timeline Chart Data
+            # 7. Timeline Graph
             for i in range(6, -1, -1):
                 day = (datetime.now() - timedelta(days=i)).date()
                 cursor.execute(
@@ -341,19 +392,21 @@ def admin_dashboard():
                 )
                 row = cursor.fetchone()
                 time_labels.append(day.strftime('%b %d'))
-                time_data.append(int(row['qty']) if row and row['qty'] else 0)
+                time_data.append(int(row['qty']) if (row and row.get('qty')) else 0)
 
-            # 8. Top Seller Identification
+            # 8. Best Selling Product
             cursor.execute(
                 "SELECT cookie_type, SUM(quantity) as total FROM orders WHERE status = 'Delivered' GROUP BY cookie_type ORDER BY total DESC LIMIT 1"
             )
             top_row = cursor.fetchone()
             if top_row and top_row.get('cookie_type'):
-                best_cookie_name = str(top_row['cookie_type']).capitalize()
-
+                raw_cookie = top_row['cookie_type']
+                if raw_cookie in COOKIES:
+                    best_cookie_name = COOKIES[raw_cookie]['name']
+                else:
+                    best_cookie_name = str(raw_cookie).title()
+    finally:
         conn.close()
-    except Exception as e:
-        flash(f'Database error loading dashboard: {str(e)}', 'error')
 
     return render_template('admin_dashboard.html',
                            products=products,
@@ -382,12 +435,14 @@ def add_product():
 
     if name and price:
         conn = get_db()
-        with conn.cursor() as cursor:
-            cursor.execute(
-                'INSERT INTO products (name, price, description, status) VALUES (%s, %s, %s, %s)',
-                (name, float(price), description, status)
-            )
-        conn.close()
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    'INSERT INTO products (name, price, description, status) VALUES (%s, %s, %s, %s)',
+                    (name, float(price), description, status)
+                )
+        finally:
+            conn.close()
         flash(f'Product {name} added!', 'success')
     return redirect(url_for('admin_dashboard'))
 
@@ -395,9 +450,11 @@ def add_product():
 def delete_product(product_id):
     if not session.get('admin'): return redirect(url_for('admin_login'))
     conn = get_db()
-    with conn.cursor() as cursor:
-        cursor.execute('DELETE FROM products WHERE id = %s', (product_id,))
-    conn.close()
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute('DELETE FROM products WHERE id = %s', (product_id,))
+    finally:
+        conn.close()
     flash('Product removed.', 'success')
     return redirect(url_for('admin_dashboard'))
 
@@ -405,10 +462,12 @@ def delete_product(product_id):
 def delete_customer(customer_id):
     if not session.get('admin'): return redirect(url_for('admin_login'))
     conn = get_db()
-    with conn.cursor() as cursor:
-        cursor.execute('DELETE FROM orders WHERE customer_id = %s', (customer_id,))
-        cursor.execute('DELETE FROM customers WHERE id = %s', (customer_id,))
-    conn.close()
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute('DELETE FROM orders WHERE customer_id = %s', (customer_id,))
+            cursor.execute('DELETE FROM customers WHERE id = %s', (customer_id,))
+    finally:
+        conn.close()
     flash('Customer removed.', 'success')
     return redirect(url_for('admin_dashboard'))
 
@@ -416,9 +475,11 @@ def delete_customer(customer_id):
 def admin_delete_order(order_id):
     if not session.get('admin'): return redirect(url_for('admin_login'))
     conn = get_db()
-    with conn.cursor() as cursor:
-        cursor.execute('DELETE FROM orders WHERE id = %s', (order_id,))
-    conn.close()
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute('DELETE FROM orders WHERE id = %s', (order_id,))
+    finally:
+        conn.close()
     flash(f'Order #{order_id} deleted permanently.', 'success')
     return redirect(url_for('admin_dashboard'))
 
@@ -426,9 +487,11 @@ def admin_delete_order(order_id):
 def delete_comment(comment_id):
     if not session.get('admin'): return redirect(url_for('admin_login'))
     conn = get_db()
-    with conn.cursor() as cursor:
-        cursor.execute('DELETE FROM comments WHERE id = %s', (comment_id,))
-    conn.close()
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute('DELETE FROM comments WHERE id = %s', (comment_id,))
+    finally:
+        conn.close()
     flash('Comment removed from portal.', 'success')
     return redirect(url_for('admin_dashboard'))
 
@@ -437,9 +500,11 @@ def update_order(order_id):
     if not session.get('admin'): return redirect(url_for('admin_login'))
     new_status = request.form.get('status')
     conn = get_db()
-    with conn.cursor() as cursor:
-        cursor.execute('UPDATE orders SET status = %s WHERE id = %s', (new_status, order_id))
-    conn.close()
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute('UPDATE orders SET status = %s WHERE id = %s', (new_status, order_id))
+    finally:
+        conn.close()
     flash(f'Order #{order_id} updated.', 'success')
     return redirect(url_for('admin_dashboard'))
 
