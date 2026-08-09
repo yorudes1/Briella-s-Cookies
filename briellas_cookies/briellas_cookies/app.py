@@ -71,9 +71,15 @@ def init_db():
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )''')
             
+            # Migration: Ensure delivery_date column exists in orders
             cursor.execute("SHOW COLUMNS FROM orders LIKE 'delivery_date'")
             if not cursor.fetchone():
                 cursor.execute("ALTER TABLE orders ADD COLUMN delivery_date VARCHAR(100) DEFAULT 'Not Scheduled Yet'")
+
+            # Migration: Ensure status column exists in products
+            cursor.execute("SHOW COLUMNS FROM products LIKE 'status'")
+            if not cursor.fetchone():
+                cursor.execute("ALTER TABLE products ADD COLUMN status VARCHAR(50) DEFAULT 'Available'")
     finally:
         conn.close()
 
