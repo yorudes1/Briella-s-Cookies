@@ -208,9 +208,9 @@
   }
   .stat-card .val { 
     font-size: 2rem; 
-    font-family: 'Poppins', sans-serif; 
+    font-family: 'Jost', sans-serif; 
     color: var(--dark-brown); 
-    font-weight: 600; 
+    font-weight: 700; 
   }
   .stat-note {
     font-size: 0.75rem;
@@ -409,13 +409,13 @@
         <span class="stat-icon">💰</span>
         <h3>Store Revenue</h3>
         <div class="val">₱{{ "%.2f"|format(total_revenue) }}</div>
-        <div class="stat-note">* Delivered orders only</div>
+        <div class="stat-note">Delivered orders</div>
       </div>
       <div class="stat-card">
         <span class="stat-icon">🍪</span>
         <h3>Cookies Sold</h3>
-        <div class="val">{{ total_cookies_sold }} Pcs</div>
-        <div class="stat-note">* Delivered items count</div>
+        <div class="val">{{ total_cookies_sold }}</div>
+        <div class="stat-note">Delivered items</div>
       </div>
       <div class="stat-card">
         <span class="stat-icon">✨</span>
@@ -424,7 +424,7 @@
       </div>
       <div class="stat-card">
         <span class="stat-icon">👩‍🍳</span>
-        <h3>Registered Customers</h3>
+        <h3>Customers</h3>
         <div class="val">{{ customers|length if customers else 0 }}</div>
       </div>
     </div>
