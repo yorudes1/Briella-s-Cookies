@@ -79,7 +79,7 @@
   }
   .btn-logout:hover { background: #8c2f1e; color: #fff; }
 
-  /* Hamburger Menu Toggle Button (Updated to Poppins, #C08552, matching Logout size) */
+  /* Hamburger Menu Toggle Button */
   .hamburger-btn {
     background: #C08552;
     color: #fff;
@@ -242,6 +242,25 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.02);
   }
 
+  /* Matching About Briella's Cookies styling */
+  .about-style-subtitle {
+    font-family: 'Jost', sans-serif;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    color: var(--accent-gold);
+    font-weight: 600;
+    margin: 0 0 6px 0;
+  }
+  .about-style-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--dark-brown);
+    margin: 0 0 25px 0;
+    letter-spacing: 0.05em;
+  }
+
   /* --- Product Form Styling --- */
   .form-row-grid { 
     display: grid; 
@@ -342,7 +361,6 @@
   <div class="header-right">
     <div class="admin-status">Logged in as <strong>Admin</strong></div>
     
-    <!-- Side Menu Dropdown Button (Poppins font, #C08552, matched size to Logout) -->
     <button class="hamburger-btn" onclick="toggleSidebar()">
       <span>☰</span> Menu
     </button>
@@ -581,7 +599,6 @@
   <div id="tab-sales" class="tab-panel">
     <h2 style="margin-top: 0;">Sales & Order Performance</h2>
     
-    <!-- Pending vs Delivered Breakdown -->
     <div class="grid-stats" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
       <div class="stat-card">
         <h3>Delivered Orders</h3>
@@ -655,7 +672,6 @@
 
   <!-- ================= TAB 3: CUSTOMER ACCOUNTS ================= -->
   <div id="tab-customers" class="tab-panel">
-    <!-- Only Registered Customers Card (Store Revenue, Cookies Sold, Top Seller Removed) -->
     <div class="grid-stats" style="grid-template-columns: repeat(auto-fit, minmax(220px, 300px)); margin-bottom: 30px;">
       <div class="stat-card">
         <span class="stat-icon">👩‍🍳</span>
@@ -664,15 +680,10 @@
       </div>
     </div>
 
-    <!-- Title in Plus Jakarta Sans (Medium Bold) & Subtitle in DM Sans (Thin/Regular) -->
-    <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 1.8rem; margin: 0 0 4px 0;">
-      Registered Customer Accounts
-    </h2>
-    <p style="font-family: 'DM Sans', sans-serif; font-weight: 400; font-size: 0.9rem; color: var(--text-muted); margin: 0 0 25px 0;">
-      Customer Accounts & Information
-    </p>
+    <!-- Title and Subtitle Styled Exactly Like 'About Briella's Cookies' -->
+    <p class="about-style-subtitle">CUSTOMER ACCOUNTS & INFORMATION</p>
+    <h2 class="about-style-title">Registered Customer Accounts</h2>
 
-    <!-- Detailed Customer Table -->
     <div class="table-wrapper">
       <table>
         <thead>
@@ -684,7 +695,7 @@
             <th>Orders (Total)</th>
             <th>Delivered Orders</th>
             <th>Pending Orders</th>
-            <th style="width: 120px;"></th> <!-- "Action" header removed, delete button remains in column -->
+            <th style="width: 120px;"></th>
           </tr>
         </thead>
         <tbody>
@@ -722,7 +733,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  // Drawer Menu Toggle Functions
   function toggleSidebar() {
     const drawer = document.getElementById('sidebarDrawer');
     const overlay = document.getElementById('sidebarOverlay');
@@ -736,36 +746,28 @@
     }
   }
 
-  // Subtab Navigation Switcher
   function switchTab(tabId) {
-    // Hide all tabs
     document.querySelectorAll('.tab-panel').forEach(panel => {
       panel.classList.remove('active');
     });
 
-    // Remove active class from drawer buttons
     document.querySelectorAll('.sidebar-nav-btn').forEach(btn => {
       btn.classList.remove('active');
     });
 
-    // Activate targeted tab and button
     const targetPanel = document.getElementById('tab-' + tabId);
     if (targetPanel) {
       targetPanel.classList.add('active');
     }
 
-    // Highlight button in drawer
     if (event && event.currentTarget) {
       event.currentTarget.classList.add('active');
     }
 
-    // Close sidebar drawer after selection
     toggleSidebar();
   }
 
-  // Initialize Chart.js Graphics
   document.addEventListener('DOMContentLoaded', function() {
-    // PIE CHART: Top Selling Flavors
     const ctxPie = document.getElementById('productPieChart')?.getContext('2d');
     if (ctxPie) {
       new Chart(ctxPie, {
@@ -787,7 +789,6 @@
       });
     }
 
-    // LINE CHART: Weekly Orders
     const ctxLine = document.getElementById('trendsLineChart')?.getContext('2d');
     if (ctxLine) {
       new Chart(ctxLine, {
