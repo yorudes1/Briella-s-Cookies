@@ -681,7 +681,7 @@
     </div>
 
     <!-- Main Title Placed Above the Subtext -->
-    <h2 class="about-style-title" style="margin-bottom: 6px;">Registered Customer Accounts</h2>
+    <h2 class="about-style-title" style="margin-bottom: 6px;">Accounts</h2>
     <p class="about-style-subtitle" style="margin-bottom: 25px;">CUSTOMER ACCOUNTS & INFORMATION</p>
 
     <div class="table-wrapper">
@@ -714,7 +714,7 @@
                 <td><span class="status-badge status-pending">{{ pending_cnt }}</span></td>
                 <td style="text-align: center;">
                   <form action="{{ url_for('delete_customer', customer_id=customer.id if customer.id else loop.index) }}" method="POST" onsubmit="return confirm('Delete this customer account permanently?')">
-                    <button type="submit" class="btn-delete-small">🗑️ Delete Account</button>
+                    <button type="submit" class="btn-delete-small">🗑️</button>
                   </form>
                 </td>
               </tr>
